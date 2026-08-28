@@ -1,0 +1,8 @@
+Die Schriften der Hallenanzeige stehen unter der SIL Open Font License 1.1
+(https://openfontlicense.org) und duerfen frei mitverbreitet werden:
+
+  oswald.woff2         Oswald (Vernon Adams u. a.)
+  source-sans-3.woff2  Source Sans 3 (Adobe / Paul D. Hunt)
+
+Es sind dieselben Dateien wie im Stream-Overlay des Vereins, damit Halle
+und Livestream mit identischer Typografie laufen.

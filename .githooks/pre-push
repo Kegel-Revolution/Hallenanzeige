@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Verhindert Pushes direkt auf main. Änderungen gehen über einen Branch und
+# einen Pull Request, damit die Actions vorher laufen.
+#
+# Einrichten (einmal je Arbeitskopie):
+#
+#     git config core.hooksPath .githooks
+#
+# WICHTIG, damit hier keine falsche Sicherheit entsteht: Das ist eine Bremse,
+# kein Schutz. Der Hook läuft nur auf einem Rechner, auf dem er eingerichtet
+# ist, und "git push --no-verify" geht daran vorbei. Echten, serverseitigen
+# Schutz gibt es bei GitHub für private Repositories erst ab dem Team-Plan
+# (oder kostenlos, sobald ein Repository öffentlich ist).
+
+geschuetzt="main"
+
+while read -r _lokaler_ref lokaler_sha ferner_ref _ferner_sha; do
+	# Nur Pushes auf den geschützten Branch betrachten.
+	[ "$ferner_ref" = "refs/heads/$geschuetzt" ] || continue
+
+	leer="0000000000000000000000000000000000000000"
+	if [ "$lokaler_sha" = "$leer" ]; then
+		echo "" >&2
+		echo "  Abgelehnt: '$geschuetzt' soll nicht gelöscht werden." >&2
+		echo "" >&2
+		exit 1
+	fi
+
+	zweig="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+	echo "" >&2
+	echo "  Abgelehnt: kein direkter Push auf '$geschuetzt'." >&2
+	echo "" >&2
+	echo "  Änderungen gehen über einen Branch und einen Pull Request –" >&2
+	echo "  dann laufen die Actions, bevor etwas auf $geschuetzt landet." >&2
+	echo "" >&2
+	if [ "$zweig" = "$geschuetzt" ]; then
+		echo "    git switch -c meine-aenderung" >&2
+		echo "    git push -u origin meine-aenderung" >&2
+		echo "    gh pr create" >&2
+	else
+		echo "    git push -u origin $zweig" >&2
+		echo "    gh pr create" >&2
+	fi
+	echo "" >&2
+	echo "  Im Ausnahmefall: git push --no-verify" >&2
+	echo "" >&2
+	exit 1
+done
+
+exit 0

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Hallenanzeige</title>
+<!--
+  Hallenanzeige – die Bildschirme in der Halle (Ersatz für den ahlbrowser).
+
+  Vollbild-Anzeige für Zuschauer: läuft im Browser (F11 bzw. Kiosk-Modus)
+  direkt gegen die Bridge auf demselben Rechner oder im LAN. Aufbau wie der
+  Pausen-Screen des Livestream-Overlays (Navy/Gold, Oswald + Source Sans 3),
+  damit Halle und Stream dasselbe Bild sprechen.
+
+  Oben stehen dauerhaft Heim (links) und Gast (rechts) mit dem Gesamtholz
+  in Groß und den Mannschaftspunkten in der Mitte. Darunter wechseln sich
+  zwei Tafeln ab:
+    AUFSTELLUNG   alle Paarungen mit den Satzergebnissen und Satzpunkten
+    STATISTIK     Team-Vergleich (Volle, Abräumen, Fehlwürfe, Neuner, ...)
+
+  Parameter (an die Adresse anhängen):
+    ?ansicht=aufstellung|statistik     eine Tafel fest einstellen
+    ?ansicht=auto                      automatischer Wechsel (Vorgabe)
+    ?wechselsek=20                     Standzeit je Tafel in Sekunden
+    ?heim=2563BC&gast=D8232E           Teamfarben (Hex ohne #)
+    ?quelle=192.168.1.50:8080          Bridge auf einem anderen Rechner
+                                       (nötig, wenn die Datei lokal liegt)
+  Tasten: 1 = Aufstellung fest, 2 = Statistik fest, 0 = Automatik,
+  F = Vollbild.
+-->
+<style>
+  /* Schriften wie im Stream-Overlay. Relative Pfade, damit dieselbe Datei
+     überall läuft: eingebettet in der Bridge (/anzeige), aus einem eigenen
+     Ordner (cc2bridge.exe -web …) oder direkt von der Festplatte. */
+  @font-face {
+    font-family: 'Oswald';
+    src: url('fonts/oswald.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Source Sans 3';
+    src: url('fonts/source-sans-3.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    /* Farbwelt des Stream-Overlays */
+    --navy: #0A1733;
+    --gold: #E8B21A;
+    --rot: #E5202B;
+    --blau1: #C7D2E8;   /* helle Zeilen */
+    --blau2: #9FB0CE;   /* Beschriftungen */
+    --blau3: #8FA2C4;   /* Nebenwerte */
+    --blau4: #7183A6;   /* gedämpft (kommende Duelle) */
+    --blau5: #5B6E93;   /* Doppelpunkte */
+    --linie: rgba(255, 255, 255, .08);
+    /* Teamfarben – per ?heim=/?gast= übersteuerbar */
+    --heim: #2563BC; --heim-dunkel: #163E77;
+    --gast: #D8232E; --gast-dunkel: #82151C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    background: #060D1D;
+    font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+    color: #FFFFFF;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    cursor: none;
+  }
+  [hidden] { display: none !important; }
+
+  /* Feste 1920×1080-Bühne, auf die Fenstergröße skaliert –
+     dadurch sieht die Anzeige auf jedem der Bildschirme gleich aus. */
+  #stage {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 1920px; height: 1080px;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    /* "Board"-Look der Vollbild-Screens im Stream-Overlay */
+    background:
+      repeating-linear-gradient(115deg,
+        rgba(255, 255, 255, .025) 0px, rgba(255, 255, 255, .025) 2px,
+        transparent 2px, transparent 110px),
+      linear-gradient(160deg, #12295A 0%, #081226 62%, #060D1D 100%);
+  }
+
+  /* ================================================================
+     Oberste Zeile: Liga links, Uhr + Status rechts
+     ================================================================ */
+
+  #kopf {
+    position: absolute;
+    left: 48px; right: 48px; top: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #liga {
+    background: rgba(8, 17, 40, .88);
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 21px;
+    letter-spacing: .07em;
+    color: var(--blau1);
+    max-width: 660px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #liga:empty { visibility: hidden; }
+
+  #kopf-rechts { display: flex; align-items: center; gap: 14px; }
+
+  #uhr {
+    background: rgba(8, 17, 40, .88);
+    padding: 10px 18px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: .08em;
+    color: var(--blau1);
+  }
+
+  .status-badge {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: .12em;
+    color: #FFFFFF;
+  }
+  .status-badge__dot { width: 10px; height: 10px; border-radius: 50%; background: #FFFFFF; }
+  .status-badge--live { background: var(--rot); }
+  .status-badge--live .status-badge__dot { animation: pulse 1.6s ease-in-out infinite; }
+  .status-badge--demo { background: var(--gold); color: var(--navy); }
+  .status-badge--demo .status-badge__dot { background: var(--navy); }
+  .status-badge--fertig { background: rgba(8, 17, 40, .88); color: var(--gold); }
+  .status-badge--fertig .status-badge__dot { background: var(--gold); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+  /* ================================================================
+     Kopf wie beim Pausen-Screen: Heim links, Gast rechts, dazwischen
+     die Mannschaftspunkte – Gesamtholz groß unter den Teamnamen.
+     ================================================================ */
+
+  #score {
+    position: absolute;
+    left: 48px; right: 48px; top: 116px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    column-gap: 40px;
+  }
+
+  .team { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .team--heim { align-items: flex-start; text-align: left; }
+  .team--gast { align-items: flex-end; text-align: right; }
+
+  .team__name {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 46px;
+    line-height: 1.1;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    max-width: 100%;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* Farbbalken in der Teamfarbe – dieselbe Kennung wie die Statistik-Balken */
+  .team__balken { width: 130px; height: 7px; }
+  .team--heim .team__balken { background: linear-gradient(90deg, var(--heim), var(--heim-dunkel)); }
+  .team--gast .team__balken { background: linear-gradient(90deg, var(--gast-dunkel), var(--gast)); }
+
+  .team__holz {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 100px;
+    line-height: 1;
+    margin-top: 6px;
+  }
+  .team__holz.vorn { color: var(--gold); }
+
+  .team__label {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: .14em;
+    color: var(--blau2);
+  }
+
+  .mitte {
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  #mp {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 118px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  #mp .doppel { color: var(--blau5); font-size: 86px; }
+
+  .mitte__label {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: .14em;
+    color: var(--blau2);
+  }
+
+  /* Zwei kurze Zeilen statt einer breiten – die Teamnamen links und
+     rechts brauchen die Breite */
+  .unterzeile {
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: .08em;
+    color: var(--blau1);
+    white-space: nowrap;
+    text-align: center;
+  }
+  #uz-sp { margin-top: 12px; }
+
+  /* ================================================================
+     Tafeln (wechseln sich ab wie 1F/1G im Stream)
+     ================================================================ */
+
+  #tafeln {
+    position: absolute;
+    left: 48px; right: 48px; top: 400px; bottom: 90px;
+    display: flex;
+  }
+
+  .tafel {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    justify-content: center;
+  }
+  /* Nur eine Bewegung, keine opacity-Einblendung: steht die Animations-Uhr
+     des Browsers still, bliebe die Tafel sonst unsichtbar. */
+  .tafel--in { animation: tafel-in .5s cubic-bezier(.2, .7, .25, 1) both; }
+  @keyframes tafel-in { from { transform: translateY(26px); } to { transform: none; } }
+
+  .tafel__mitte { max-width: 1560px; width: 100%; margin: 0 auto; }
+
+  .tafel__lbl {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: .1em;
+    color: var(--gold);
+    margin-bottom: 18px;
+  }
+
+  /* ---------- Tafel AUFSTELLUNG: Paarungen mit Satzergebnissen ---------- */
+
+  .du__tabelle { display: flex; flex-direction: column; border-bottom: 1px solid var(--linie); }
+
+  .du__zeile {
+    display: grid;
+    grid-template-columns: 1fr 110px 520px 110px 1fr;
+    align-items: center;
+    padding: 13px 24px;
+    background: rgba(255, 255, 255, .03);
+    border-top: 1px solid var(--linie);
+  }
+  .du__zeile:nth-child(odd) { background: rgba(255, 255, 255, .05); }
+
+  .du__name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 32px;
+    color: #93A5C6;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .du__name--heim { text-align: right; }
+  .du__name.vorn { color: #FFFFFF; font-weight: 600; }
+
+  .du__holz { font-family: 'Oswald', sans-serif; font-size: 34px; color: #93A5C6; }
+  .du__holz--heim { text-align: right; padding-right: 16px; }
+  .du__holz--gast { padding-left: 16px; }
+  .du__holz.gold { color: var(--gold); font-weight: 600; }
+
+  /* Satz für Satz: "146:132" – Heim links, Gast rechts wie in der Zeile */
+  .du__mitte {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .du__satz {
+    width: 96px;
+    text-align: center;
+    padding: 7px 0;
+    background: rgba(255, 255, 255, .05);
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    color: #93A5C6;
+    white-space: nowrap;
+  }
+  .du__satz .st { color: var(--blau5); }
+  .du__satz b { font-weight: 600; color: #FFFFFF; }
+  .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
+  .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
+  .du__satz--live .st, .du__satz--live b { color: var(--gold); }
+
+  .du__sp {
+    width: 96px;
+    margin-left: 8px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 23px;
+    color: var(--blau2);
+    background: rgba(255, 255, 255, .07);
+    padding: 7px 0;
+    white-space: nowrap;
+  }
+  .du__sp--live { color: var(--navy); background: var(--gold); }
+  .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
+  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 19px; color: var(--blau4); }
+
+  .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
+
+  /* ---------- Tafel STATISTIK (Stil des Pausen-Screens 1G) ---------- */
+
+  .st__chips { display: flex; justify-content: space-between; margin-bottom: 26px; }
+  .st__chip {
+    padding: 8px 22px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600; font-size: 24px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    max-width: 620px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .st__chip--heim { background: linear-gradient(180deg, var(--heim), var(--heim-dunkel)); }
+  .st__chip--gast { background: linear-gradient(180deg, var(--gast), var(--gast-dunkel)); }
+
+  .st__zeilen { display: flex; flex-direction: column; gap: 24px; }
+  .st__zeile { display: flex; align-items: center; gap: 22px; }
+
+  .st__wert {
+    width: 150px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600; font-size: 36px;
+  }
+  .st__wert--gast { text-align: right; }
+  .st__wert.gold { color: var(--gold); }
+
+  .st__balken { flex: 1; height: 14px; background: rgba(255, 255, 255, .1); }
+  .st__balken--heim { display: flex; justify-content: flex-end; }
+  .st__balken i {
+    display: block; height: 14px; width: 0;
+    transition: width .45s cubic-bezier(.2, .7, .25, 1);
+  }
+  .st__balken--heim i { background: linear-gradient(90deg, var(--heim-dunkel), var(--heim)); }
+  .st__balken--gast i { background: linear-gradient(90deg, var(--gast), var(--gast-dunkel)); }
+
+  .st__label {
+    width: 360px;
+    text-align: center;
+    font-weight: 600; font-size: 20px;
+    letter-spacing: .09em;
+    color: var(--blau2);
+  }
+
+  /* ---------- Hinweis, wenn (noch) kein Wettkampf läuft ---------- */
+
+  #leer {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px;
+    text-align: center;
+  }
+  #leer .gross {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600; font-size: 64px;
+    letter-spacing: .04em;
+  }
+  #leer .klein { font-size: 26px; color: var(--blau2); }
+
+  /* ================================================================
+     Fußzeile: Tafel-Fortschritt + Wettkampf-Info
+     ================================================================ */
+
+  #fuss {
+    position: absolute;
+    left: 48px; right: 48px; bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+  }
+  #wk-info {
+    font-size: 17px; color: var(--blau4);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #stand { font-size: 17px; color: var(--blau4); white-space: nowrap; }
+
+  /* Fortschritts-Striche wie beim Pausen-Screen des Streams */
+  #punkte { display: flex; gap: 8px; }
+  #punkte .dot { width: 130px; height: 6px; background: rgba(255, 255, 255, .18); }
+  #punkte .dot i {
+    display: block; width: 0; height: 6px;
+    background: var(--gold);
+    transition: width .2s linear;
+  }
+
+  /* ---------- Verbindungs-Warnung ---------- */
+
+  #warnung {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    background: var(--rot);
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px;
+    padding: 12px 0;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600; font-size: 26px;
+    letter-spacing: .1em;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .5);
+  }
+  #warnung i {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #FFFFFF;
+    animation: blink .9s steps(1, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: .25; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <header id="kopf">
+    <div id="liga"></div>
+    <div id="kopf-rechts">
+      <div id="uhr">--:--</div>
+      <div class="status-badge" id="status" hidden><i class="status-badge__dot"></i><span id="status-text">LIVE</span></div>
+    </div>
+  </header>
+
+  <div id="score">
+    <div class="team team--heim">
+      <span class="team__name" id="name-heim">–</span>
+      <i class="team__balken"></i>
+      <span class="team__holz" id="holz-heim">0</span>
+      <span class="team__label">GESAMTHOLZ</span>
+    </div>
+    <div class="mitte">
+      <span id="mp"><span id="mp-heim">0</span><span class="doppel"> : </span><span id="mp-gast">0</span></span>
+      <span class="mitte__label">MANNSCHAFTSPUNKTE</span>
+      <span class="unterzeile" id="uz-sp"></span>
+      <span class="unterzeile" id="uz-stand"></span>
+    </div>
+    <div class="team team--gast">
+      <span class="team__name" id="name-gast">–</span>
+      <i class="team__balken"></i>
+      <span class="team__holz" id="holz-gast">0</span>
+      <span class="team__label">GESAMTHOLZ</span>
+    </div>
+  </div>
+
+  <main id="tafeln">
+    <section class="tafel" id="tafel-duelle" hidden>
+      <div class="tafel__mitte">
+        <div class="tafel__lbl" id="duelle-lbl">DIE DUELLE</div>
+        <div class="du__tabelle" id="duelle"></div>
+        <div class="tafel__fuss" id="duelle-fuss">Duellgewinn = 1 MP &middot; besseres Gesamtholz = 2 MP</div>
+      </div>
+    </section>
+
+    <section class="tafel" id="tafel-statistik" hidden>
+      <div class="tafel__mitte">
+        <div class="tafel__lbl">TEAM-STATISTIK</div>
+        <div class="st__chips">
+          <span class="st__chip st__chip--heim" id="chip-heim">–</span>
+          <span class="st__chip st__chip--gast" id="chip-gast">–</span>
+        </div>
+        <div class="st__zeilen" id="statistik"></div>
+      </div>
+    </section>
+
+    <section class="tafel" id="leer" hidden>
+      <div class="gross">KEIN WETTKAMPF AKTIV</div>
+      <div class="klein">Die Anzeige startet von selbst, sobald in CC2 ein Wettkampf angelegt ist.</div>
+    </section>
+  </main>
+
+  <footer id="fuss">
+    <span id="wk-info"></span>
+    <div id="punkte"></div>
+    <span id="stand"></span>
+  </footer>
+
+  <div id="warnung" hidden><i></i><span>KEINE VERBINDUNG ZUM BAHN-RECHNER &ndash; LETZTER STAND WIRD ANGEZEIGT</span></div>
+</div>
+
+<script>
+'use strict';
+
+/* ---------------------------------------------------------- Parameter */
+
+const P = new URLSearchParams(location.search);
+
+// Bridge-Adresse: leer = gleiche Herkunft (Normalfall, die Bridge liefert
+// diese Seite ja selbst aus). ?quelle=IP:Port, wenn die Datei woanders
+// liegt; direkt von der Festplatte geöffnet gilt der Bahn-PC selbst.
+const BASIS = P.get('quelle')
+  ? 'http://' + P.get('quelle').replace(/^https?:\/\//, '')
+  : (location.protocol === 'file:' ? 'http://localhost:8080' : '');
+
+// Standzeit je Tafel (wie "Tafel-Wechsel" beim Pausen-Screen des Streams)
+const WECHSELSEK = Math.max(5, parseInt(P.get('wechselsek') || P.get('tafelsek') || '20', 10) || 20);
+
+// Teamfarben: dunkle Variante für die Verläufe wird mitgerechnet
+function setzeFarbe(name, hex) {
+  const h = String(hex || '').replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return;
+  const dunkel = [0, 2, 4]
+    .map((i) => Math.round(parseInt(h.slice(i, i + 2), 16) * 0.55))
+    .map((v) => v.toString(16).padStart(2, '0')).join('');
+  document.documentElement.style.setProperty('--' + name, '#' + h);
+  document.documentElement.style.setProperty('--' + name + '-dunkel', '#' + dunkel);
+}
+setzeFarbe('heim', P.get('heim'));
+setzeFarbe('gast', P.get('gast'));
+
+/* ---------------------------------------------------------- Helfer */
+
+const $ = (id) => document.getElementById(id);
+const num = (v) => (typeof v === 'number' && isFinite(v) ? v : 0);
+const esc = (t) => String(t ?? '').replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+
+/** Satzpunkte-Schreibweise: ganze Zahlen ohne, halbe mit Komma ("4,5"). */
+function fmtSp(v) {
+  v = num(v);
+  return v % 1 === 0 ? String(v) : v.toFixed(1).replace('.', ',');
+}
+
+function setText(el, text) {
+  if (el.textContent !== String(text)) el.textContent = text;
+}
+
+/* ---------------------------------------------------------- Wertung */
+
+/**
+ * Sätze je Durchgang. CC2 zählt in anzDurchgaenge jeden Satz einzeln
+ * (3 Durchgänge × 4 Sätze = 12). Vier Sätze sind der Normalfall,
+ * bei nicht durch 4 teilbaren Werten sind es zwei.
+ */
+function saetzeJeDurchgang(s) {
+  const anz = num((s.wettkampf || {}).anzDurchgaenge);
+  if (anz > 0 && anz % 4 !== 0 && anz % 2 === 0) return 2;
+  return 4;
+}
+
+/**
+ * Mannschaftspunkte wie in der Score-Leiste des Streams: je begonnenem
+ * Duell 1 Punkt für den Führenden (mehr Satzpunkte, bei Gleichstand mehr
+ * Holz, sonst je 0,5) + 2 Punkte für die Führung im Gesamtholz (bei
+ * Gleichstand je 1). Nach Spielende gilt die Rechnung der Bridge.
+ */
+function mannschaftspunkte(s) {
+  const teams = s.teams || [];
+  if (s.matchFertig && teams.length === 2) {
+    const h = num(teams[0].mannschaftspunkte);
+    const g = num(teams[1].mannschaftspunkte);
+    if (h + g > 0) return { heim: h, gast: g };
+  }
+  let heim = 0;
+  let gast = 0;
+  for (const d of s.duelle || []) {
+    const spH = num(d.satzpunkteHeim);
+    const spG = num(d.satzpunkteGast);
+    const hH = num(d.holzHeim);
+    const hG = num(d.holzGast);
+    if (spH + spG === 0 && hH === 0 && hG === 0) continue;
+    if (spH > spG) heim += 1;
+    else if (spG > spH) gast += 1;
+    else if (hH > hG) heim += 1;
+    else if (hG > hH) gast += 1;
+    else { heim += 0.5; gast += 0.5; }
+  }
+  const gh = num(teams[0] && teams[0].gesamt);
+  const gg = num(teams[1] && teams[1].gesamt);
+  if (gh > gg) heim += 2;
+  else if (gg > gh) gast += 2;
+  else if (gh > 0) { heim += 1; gast += 1; }
+  return { heim, gast };
+}
+
+/**
+ * Abräum-Würfe eines Spielers: jeder Satz besteht aus je einer Hälfte
+ * Volle und Abräumen – aus der Gesamtwurfzahl exakt ableitbar
+ * (dieselbe Rechnung wie im Stream-Overlay).
+ */
+function abraeumWuerfe(wurf, maxWurf) {
+  const max = maxWurf > 0 ? maxWurf : 30;
+  const haelfte = Math.floor(max / 2);
+  return Math.floor(wurf / max) * haelfte + Math.max(0, (wurf % max) - haelfte);
+}
+
+/** Kennzahlen beider Teams für die Statistik-Tafel (wie 1G im Stream). */
+function kennzahlen(s) {
+  const teams = s.teams || [];
+  const maxWurf = num(((s.bahnen || [])[0] || {}).maxWurf) || 30;
+  // Gespielte Sätze = Summe der vergebenen Satzpunkte (je Satz genau einer)
+  const saetze = (s.duelle || []).reduce(
+    (sum, d) => sum + num(d.satzpunkteHeim) + num(d.satzpunkteGast), 0);
+  const werte = (t) => {
+    if (!t) t = {};
+    const abraeumen = num(t.abraeumen);
+    const abrWuerfe = (t.spieler || []).reduce(
+      (sum, p) => sum + (p.dabei ? abraeumWuerfe(num(p.wurf), maxWurf) : 0), 0);
+    const bilder = abraeumen / 9; // ein Abräumbild sind 9 Kegel
+    return {
+      volle: num(t.volle),
+      abraeumen,
+      fehl: num(t.fehlwuerfe),
+      neuner: num(t.neunen),
+      abrBild: bilder > 0 && abrWuerfe > 0 ? abrWuerfe / bilder : NaN,
+      satzpunkte: num(t.satzpunkte),
+      holzProSatz: saetze > 0 ? num(t.gesamt) / saetze : NaN
+    };
+  };
+  return { heim: werte(teams[0]), gast: werte(teams[1]) };
+}
+
+/* ---------------------------------------------------------- Tafel AUFSTELLUNG */
+
+/**
+ * Laufende Sätze je Platz von den Bahnen ablesen: solange ein Satz noch
+ * nicht abgeschlossen (und damit noch nicht in saetzeHeim/saetzeGast
+ * verbucht) ist, kommt sein Zwischenstand aus bahnen[].holzImSatzPlatz.
+ */
+function laufendeSaetze(s) {
+  const map = {};
+  for (const b of s.bahnen || []) {
+    if (!b.letzterWurf && !b.spieler) continue;
+    const pos = num(b.platzPos);
+    if (!pos) continue;
+    if (!map[pos]) map[pos] = {};
+    map[pos][b.teamIdx === 1 ? 'gast' : 'heim'] = {
+      satz: num(b.satz),
+      wert: num(b.holzImSatzPlatz) || num(b.holzImSatz)
+    };
+  }
+  return map;
+}
+
+function renderDuelle(s) {
+  const sjd = saetzeJeDurchgang(s);
+  const teams = s.teams || [];
+
+  // Alle Plätze des Spiels: gespielte und laufende kommen aus duelle[],
+  // noch nicht begonnene aus der Aufstellung (Startpositionen der Teams) –
+  // so stehen auch die kommenden Durchgänge und vor dem ersten Wurf die
+  // komplette Startaufstellung im Bild.
+  const proPos = {};
+  for (const d of s.duelle || []) proPos[num(d.pos)] = d;
+  const dgs = Math.min(3, Math.max(1,
+    Math.round(num((s.wettkampf || {}).anzDurchgaenge) / sjd) || 3));
+  const plaetze = Math.max(dgs * 2, ...Object.keys(proPos).map(Number));
+  const nameAufPos = (team, pos) => {
+    for (const p of (team && team.spieler) || []) {
+      if (num(p.pos) === pos) return p.name || '';
+    }
+    return '';
+  };
+  const duelle = [];
+  for (let pos = 1; pos <= plaetze; pos++) {
+    if (proPos[pos]) { duelle.push(proPos[pos]); continue; }
+    const heim = nameAufPos(teams[0], pos);
+    const gast = nameAufPos(teams[1], pos);
+    if (heim || gast) duelle.push({ pos, heim, gast });
+  }
+
+  const vorSpiel = num(s.wurfAnzahl) === 0;
+  setText($('duelle-lbl'), vorSpiel ? 'STARTAUFSTELLUNG' : (s.matchFertig ? 'ENDSTAND — DIE DUELLE' : 'DIE DUELLE'));
+  $('duelle-fuss').textContent = vorSpiel
+    ? 'Noch kein Wurf – die Anzeige startet von selbst'
+    : 'Duellgewinn = 1 MP · besseres Gesamtholz = 2 MP';
+
+  const live = laufendeSaetze(s);
+
+  let html = '';
+  for (const d of duelle) {
+    const spH = num(d.satzpunkteHeim);
+    const spG = num(d.satzpunkteGast);
+    const hH = num(d.holzHeim);
+    const hG = num(d.holzGast);
+    const begonnen = spH + spG > 0 || hH > 0 || hG > 0;
+    const fertig = spH + spG >= sjd;
+
+    // Sieger nach Duell-Regel: Satzpunkte entscheiden, dann Holz
+    let siegH = false;
+    let siegG = false;
+    if (fertig) {
+      if (spH !== spG) { siegH = spH > spG; siegG = spG > spH; }
+      else if (hH !== hG) { siegH = hH > hG; siegG = hG > hH; }
+    }
+
+    // Satz für Satz: abgeschlossene Sätze aus dem Duell, der laufende von
+    // den Bahnen (goldenes Feld, zählt live mit), der Rest bleibt leer.
+    const saetzeH = Array.isArray(d.saetzeHeim) ? d.saetzeHeim : [];
+    const saetzeG = Array.isArray(d.saetzeGast) ? d.saetzeGast : [];
+    const lv = live[num(d.pos)] || {};
+    let saetze = '';
+    for (let i = 0; i < sjd; i++) {
+      const fertigH = i < saetzeH.length;
+      const fertigG = i < saetzeG.length;
+      const wh = fertigH ? num(saetzeH[i])
+        : (lv.heim && lv.heim.satz === i + 1 ? lv.heim.wert : null);
+      const wg = fertigG ? num(saetzeG[i])
+        : (lv.gast && lv.gast.satz === i + 1 ? lv.gast.wert : null);
+      if (wh === null && wg === null) {
+        saetze += '<span class="du__satz du__satz--leer">–</span>';
+        continue;
+      }
+      const beide = fertigH && fertigG;
+      const kl = beide ? 'du__satz' : 'du__satz du__satz--live';
+      const bh = beide && wh > wg ? '<b>' + wh + '</b>' : (wh === null ? '–' : wh);
+      const bg = beide && wg > wh ? '<b>' + wg + '</b>' : (wg === null ? '–' : wg);
+      saetze += '<span class="' + kl + '">' + bh + '<span class="st">:</span>' + bg + '</span>';
+    }
+
+    const dg = Math.ceil(num(d.pos) / 2) || 1;
+    let sp;
+    let spKl = 'du__sp';
+    if (fertig) sp = fmtSp(spH) + ' : ' + fmtSp(spG);
+    else if (begonnen) { sp = fmtSp(spH) + ' : ' + fmtSp(spG); spKl += ' du__sp--live'; }
+    else sp = dg + '. DG';
+
+    const zeileKl = 'du__zeile' + (begonnen ? '' : ' du__zeile--kommend');
+    const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
+    html +=
+      '<div class="' + zeileKl + '">' +
+      '<span class="du__name du__name--heim' + (siegH || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
+      '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
+      '<span class="du__mitte">' + saetze + '<span class="' + spKl + '">' + sp + '</span></span>' +
+      '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
+      '<span class="du__name' + (siegG || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
+      '</div>';
+  }
+  $('duelle').innerHTML = html;
+}
+
+/* ---------------------------------------------------------- Tafel STATISTIK */
+
+const STAT_ZEILEN = [
+  { key: 'volle', label: 'VOLLE' },
+  { key: 'abraeumen', label: 'ABRÄUMEN' },
+  { key: 'fehl', label: 'FEHLWÜRFE', kleinerBesser: true },
+  { key: 'neuner', label: 'NEUNER' },
+  { key: 'abrBild', label: 'Ø WÜRFE PRO ABRÄUMBILD', kleinerBesser: true, dezimal: 1 },
+  { key: 'satzpunkte', label: 'SATZPUNKTE', halb: true },
+  { key: 'holzProSatz', label: 'Ø HOLZ PRO SATZ', dezimal: 1 }
+];
+
+// Die Zeilen stehen fest – einmal bauen reicht
+const statRefs = [];
+for (const zeile of STAT_ZEILEN) {
+  const el = document.createElement('div');
+  el.className = 'st__zeile';
+  el.innerHTML =
+    '<span class="st__wert" data-el="heimWert">–</span>' +
+    '<div class="st__balken st__balken--heim"><i data-el="heimBalken"></i></div>' +
+    '<span class="st__label">' + zeile.label + '</span>' +
+    '<div class="st__balken st__balken--gast"><i data-el="gastBalken"></i></div>' +
+    '<span class="st__wert st__wert--gast" data-el="gastWert">–</span>';
+  $('statistik').appendChild(el);
+  const q = (name) => el.querySelector('[data-el="' + name + '"]');
+  statRefs.push({
+    zeile,
+    heimWert: q('heimWert'), gastWert: q('gastWert'),
+    heimBalken: q('heimBalken'), gastBalken: q('gastBalken')
+  });
+}
+
+function fmtStat(v, zeile) {
+  if (!isFinite(v)) return '–';
+  if (zeile.halb) return fmtSp(Math.round(v * 2) / 2);
+  if (!zeile.dezimal) return String(Math.round(v));
+  return v.toFixed(zeile.dezimal).replace('.', ',');
+}
+
+function renderStatistik(s) {
+  const teams = s.teams || [];
+  setText($('chip-heim'), (teams[0] && teams[0].name) || '–');
+  setText($('chip-gast'), (teams[1] && teams[1].name) || '–');
+
+  const kz = kennzahlen(s);
+  for (const r of statRefs) {
+    const h = kz.heim[r.zeile.key];
+    const g = kz.gast[r.zeile.key];
+    setText(r.heimWert, fmtStat(h, r.zeile));
+    setText(r.gastWert, fmtStat(g, r.zeile));
+    const max = Math.max(isFinite(h) ? h : 0, isFinite(g) ? g : 0);
+    r.heimBalken.style.width = max > 0 && isFinite(h) ? (100 * h / max) + '%' : '0';
+    r.gastBalken.style.width = max > 0 && isFinite(g) ? (100 * g / max) + '%' : '0';
+    // Gold für den besseren Wert (bei Fehlwürfen usw. den kleineren)
+    let besserH = false;
+    let besserG = false;
+    if (isFinite(h) && isFinite(g) && h !== g) {
+      besserH = r.zeile.kleinerBesser ? h < g : h > g;
+      besserG = !besserH;
+    }
+    r.heimWert.classList.toggle('gold', besserH);
+    r.gastWert.classList.toggle('gold', besserG);
+  }
+}
+
+/* ---------------------------------------------------------- Kopf */
+
+function renderKopf(s) {
+  const teams = s.teams || [];
+  const wk = s.wettkampf || {};
+  setText($('name-heim'), (teams[0] && teams[0].name) || '–');
+  setText($('name-gast'), (teams[1] && teams[1].name) || '–');
+
+  const mp = mannschaftspunkte(s);
+  setText($('mp-heim'), fmtSp(mp.heim));
+  setText($('mp-gast'), fmtSp(mp.gast));
+
+  const gh = num(teams[0] && teams[0].gesamt);
+  const gg = num(teams[1] && teams[1].gesamt);
+  setText($('holz-heim'), gh);
+  setText($('holz-gast'), gg);
+  $('holz-heim').classList.toggle('vorn', gh > gg);
+  $('holz-gast').classList.toggle('vorn', gg > gh);
+
+  // Zwei kurze Zeilen unter den Mannschaftspunkten: Satzpunkte + Spielstand
+  const sjd = saetzeJeDurchgang(s);
+  const uzSp = $('uz-sp');
+  uzSp.hidden = num(s.wurfAnzahl) === 0;
+  setText(uzSp, 'SATZPUNKTE ' + fmtSp(teams[0] && teams[0].satzpunkte) +
+    ' : ' + fmtSp(teams[1] && teams[1].satzpunkte));
+
+  let stand = '';
+  if (s.matchFertig) {
+    stand = 'SPIEL BEENDET';
+  } else if (num(s.wurfAnzahl) > 0 && num(wk.aktDurchgang) > 0) {
+    const dg = Math.max(1, Math.ceil(num(wk.aktDurchgang) / sjd));
+    let satz = 0;
+    for (const b of s.bahnen || []) if (b.letzterWurf || b.aktiv) satz = Math.max(satz, num(b.satz));
+    stand = dg + '. DURCHGANG' + (satz > 0 ? ' · SATZ ' + satz + '/' + sjd : '');
+  }
+  const uzStand = $('uz-stand');
+  uzStand.hidden = !stand;
+  setText(uzStand, stand);
+
+  const liga = [wk.liga, wk.spieltag ? wk.spieltag + '. SPIELTAG' : null]
+    .filter(Boolean).join(' · ').toUpperCase();
+  setText($('liga'), liga || String(wk.bezeichnung || ''));
+
+  // Status-Badge rechts oben
+  const badge = $('status');
+  const text = $('status-text');
+  badge.classList.remove('status-badge--live', 'status-badge--demo', 'status-badge--fertig');
+  if (s.demo) {
+    badge.hidden = false;
+    badge.classList.add('status-badge--demo');
+    setText(text, 'AUFZEICHNUNG');
+  } else if (s.matchFertig) {
+    badge.hidden = false;
+    badge.classList.add('status-badge--fertig');
+    setText(text, 'BEENDET');
+  } else if (num(s.wurfAnzahl) > 0) {
+    badge.hidden = false;
+    badge.classList.add('status-badge--live');
+    setText(text, 'LIVE');
+  } else {
+    badge.hidden = true;
+  }
+
+  const info = [wk.bezeichnung, wk.ort].filter(Boolean).join(' · ');
+  setText($('wk-info'), info);
+  setText($('stand'), s.zeit ? 'Stand ' + s.zeit : '');
+}
+
+/* ---------------------------------------------------------- Tafel-Wechsel */
+
+let S = null;             // letzter Spielstand
+let ansichtFest = null;   // per Parameter/Taste fest gewählte Tafel
+let ablauf = [];          // [['duelle', 20], ['statistik', 20]]
+let ablaufPos = 0;
+let tafelSeit = Date.now();
+let curWk = -1;
+
+const ANSICHTEN = { aufstellung: 'duelle', duelle: 'duelle', statistik: 'statistik' };
+const start = P.get('ansicht');
+if (start && ANSICHTEN[start]) ansichtFest = ANSICHTEN[start];
+
+/** Welche Tafeln der aktuelle Spielstand hergibt. */
+function moeglicheTafeln(s) {
+  if (!s) return [];
+  const teams = s.teams || [];
+  if (!teams[0] || !teams[0].name) return [];               // kein Wettkampf
+  if (num(s.wurfAnzahl) === 0) return ['duelle'];           // Startaufstellung
+  return ['duelle', 'statistik'];
+}
+
+function zeigeTafel(name) {
+  for (const t of ['duelle', 'statistik']) {
+    const el = $('tafel-' + t);
+    const aktiv = t === name;
+    if (!el.hidden && aktiv) continue;
+    el.hidden = !aktiv;
+    if (aktiv) {
+      el.classList.remove('tafel--in');
+      void el.offsetWidth;
+      el.classList.add('tafel--in');
+    }
+  }
+  $('leer').hidden = name !== null && name !== undefined;
+}
+
+function renderTafeln() {
+  if (!S) return;
+  const tafeln = moeglicheTafeln(S);
+  if (tafeln.length === 0) { zeigeTafel(null); $('punkte').innerHTML = ''; return; }
+
+  let aktiv;
+  if (ansichtFest && tafeln.includes(ansichtFest)) {
+    aktiv = ansichtFest;
+    $('punkte').innerHTML = '';
+  } else {
+    const neu = tafeln.map((t) => [t, WECHSELSEK]);
+    if (JSON.stringify(neu) !== JSON.stringify(ablauf)) {
+      ablauf = neu;
+      ablaufPos = 0;
+      tafelSeit = Date.now();
+    }
+    const vergangen = (Date.now() - tafelSeit) / 1000;
+    if (vergangen >= ablauf[ablaufPos][1]) {
+      ablaufPos = (ablaufPos + 1) % ablauf.length;
+      tafelSeit = Date.now();
+    }
+    aktiv = ablauf[ablaufPos][0];
+
+    // Fortschritts-Striche wie beim Pausen-Screen des Streams –
+    // nur wenn wirklich mehrere Tafeln im Wechsel sind
+    const punkte = $('punkte');
+    if (ablauf.length < 2) {
+      punkte.innerHTML = '';
+    } else {
+      if (punkte.children.length !== ablauf.length) {
+        punkte.innerHTML = ablauf.map(() => '<span class="dot"><i></i></span>').join('');
+      }
+      for (let i = 0; i < ablauf.length; i++) {
+        const anteil = i < ablaufPos ? 100 : i > ablaufPos ? 0
+          : Math.min(100, 100 * (Date.now() - tafelSeit) / 1000 / ablauf[ablaufPos][1]);
+        punkte.children[i].firstElementChild.style.width = anteil + '%';
+      }
+    }
+  }
+
+  zeigeTafel(aktiv);
+  if (aktiv === 'duelle') renderDuelle(S);
+  else if (aktiv === 'statistik') renderStatistik(S);
+}
+
+setInterval(renderTafeln, 250);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === '1') ansichtFest = 'duelle';
+  else if (e.key === '2') ansichtFest = 'statistik';
+  else if (e.key === '0') ansichtFest = null;
+  else if (e.key === 'f' || e.key === 'F') {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  } else return;
+  renderTafeln();
+});
+
+/* ---------------------------------------------------------- Daten */
+
+function render(s) {
+  if (!s || typeof s !== 'object') return;
+  S = s;
+
+  // Neuer Wettkampf angelegt? Von vorn beginnen.
+  const wkId = num((s.wettkampf || {}).id);
+  if (wkId !== curWk) {
+    curWk = wkId;
+    ablaufPos = 0;
+    tafelSeit = Date.now();
+  }
+
+  renderKopf(s);
+  renderTafeln();
+}
+
+// SSE mit Polling als Rückfallebene; bei Ausfall bleibt der letzte Stand
+// stehen und die rote Warnung erscheint (nach kurzer Schonfrist, damit die
+// automatische Wiederverbindung keine Fehlalarme produziert).
+let warnungAb = 0;
+function verbindungOk(ok) {
+  if (ok) { warnungAb = 0; $('warnung').hidden = true; return; }
+  if (!warnungAb) warnungAb = Date.now() + 6000;
+}
+setInterval(() => {
+  if (warnungAb && Date.now() > warnungAb) $('warnung').hidden = false;
+}, 500);
+
+let pollTimer = null;
+function starteAbfrage() {
+  if (pollTimer) return;
+  pollTimer = setInterval(async () => {
+    try {
+      const r = await fetch(BASIS + '/live.json');
+      render(await r.json());
+      verbindungOk(true);
+    } catch (e) { verbindungOk(false); }
+  }, 1500);
+}
+
+try {
+  const es = new EventSource(BASIS + '/events');
+  es.onopen = () => verbindungOk(true);
+  es.onmessage = (ev) => {
+    try {
+      const m = JSON.parse(ev.data);
+      if (m.typ === 'snapshot') { render(m.daten); verbindungOk(true); }
+    } catch (e) { /* halbe Nachricht – nächste kommt */ }
+  };
+  es.onerror = () => { verbindungOk(false); starteAbfrage(); };
+} catch (e) { starteAbfrage(); }
+fetch(BASIS + '/live.json').then((r) => r.json()).then((s) => { render(s); verbindungOk(true); }).catch(() => verbindungOk(false));
+
+/* ---------------------------------------------------------- Bühne + Uhr */
+
+function skaliere() {
+  const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.getElementById('stage').style.transform = 'translate(-50%, -50%) scale(' + f + ')';
+}
+window.addEventListener('resize', skaliere);
+skaliere();
+
+function uhr() {
+  const d = new Date();
+  setText($('uhr'), String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+}
+setInterval(uhr, 5000);
+uhr();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+# Prüft jeden Pull Request und jeden Stand auf main. Die Anzeige ist eine
+# einzelne HTML-Datei — ein Syntaxfehler darin fiele sonst erst am
+# Spieltag als schwarzer Bildschirm in der Halle auf.
+name: Prüfen
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Ein zweiter Push auf denselben Branch bricht den vorigen Lauf ab.
+concurrency:
+  group: pruefen-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruefen:
+    name: Syntax und Dateien
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Anzeige prüfen
+        run: node tools/pruefen.js
