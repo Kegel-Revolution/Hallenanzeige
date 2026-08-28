@@ -112,33 +112,16 @@
 
   #kopf-rechts { display: flex; align-items: center; gap: 14px; }
 
+  /* Groß genug, um sie von der Bahn aus zu lesen */
   #uhr {
     background: rgba(8, 17, 40, .88);
-    padding: 10px 18px;
+    padding: 8px 22px;
     font-family: 'Oswald', sans-serif;
     font-weight: 600;
-    font-size: 22px;
+    font-size: 40px;
     letter-spacing: .08em;
     color: var(--blau1);
   }
-
-  .status-badge {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 18px;
-    font-family: 'Oswald', sans-serif;
-    font-weight: 600;
-    font-size: 22px;
-    letter-spacing: .12em;
-    color: #FFFFFF;
-  }
-  .status-badge__dot { width: 10px; height: 10px; border-radius: 50%; background: #FFFFFF; }
-  .status-badge--live { background: var(--rot); }
-  .status-badge--live .status-badge__dot { animation: pulse 1.6s ease-in-out infinite; }
-  .status-badge--demo { background: var(--gold); color: var(--navy); }
-  .status-badge--demo .status-badge__dot { background: var(--navy); }
-  .status-badge--fertig { background: rgba(8, 17, 40, .88); color: var(--gold); }
-  .status-badge--fertig .status-badge__dot { background: var(--gold); }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
   /* ================================================================
      Kopf wie beim Pausen-Screen: Heim links, Gast rechts, dazwischen
@@ -177,7 +160,7 @@
   .team__holz {
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
-    font-size: 100px;
+    font-size: 132px;
     line-height: 1;
     margin-top: 6px;
   }
@@ -185,7 +168,7 @@
 
   .team__label {
     font-weight: 600;
-    font-size: 16px;
+    font-size: 17px;
     letter-spacing: .14em;
     color: var(--blau2);
   }
@@ -200,11 +183,11 @@
   #mp {
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
-    font-size: 118px;
+    font-size: 140px;
     line-height: 1;
     white-space: nowrap;
   }
-  #mp .doppel { color: var(--blau5); font-size: 86px; }
+  #mp .doppel { color: var(--blau5); font-size: 100px; }
 
   .mitte__label {
     font-weight: 600;
@@ -214,16 +197,16 @@
   }
 
   /* Zwei kurze Zeilen statt einer breiten – die Teamnamen links und
-     rechts brauchen die Breite */
+     rechts brauchen die Breite. Die Satzpunkte deutlich lesbar, darunter
+     kleiner der aktuelle Durchgang/Satz. */
   .unterzeile {
     font-weight: 600;
-    font-size: 20px;
     letter-spacing: .08em;
-    color: var(--blau1);
     white-space: nowrap;
     text-align: center;
   }
-  #uz-sp { margin-top: 12px; }
+  #uz-sp { margin-top: 12px; font-size: 30px; color: #FFFFFF; }
+  #uz-stand { margin-top: 2px; font-size: 22px; color: var(--blau1); }
 
   /* ================================================================
      Tafeln (wechseln sich ab wie 1F/1G im Stream)
@@ -246,6 +229,9 @@
   @keyframes tafel-in { from { transform: translateY(26px); } to { transform: none; } }
 
   .tafel__mitte { max-width: 1560px; width: 100%; margin: 0 auto; }
+  /* Die Duell-Zeile trägt Sätze, Holz und Satzpunkte – sie braucht die
+     volle Breite, damit die Namen nicht abgeschnitten werden */
+  #tafel-duelle .tafel__mitte { max-width: 1824px; }
 
   .tafel__lbl {
     font-family: 'Oswald', sans-serif;
@@ -260,11 +246,13 @@
 
   .du__tabelle { display: flex; flex-direction: column; border-bottom: 1px solid var(--linie); }
 
+  /* Eine Zeile je Paarung, spiegelbildlich um die Satzpunkte in der Mitte:
+     Name | Satz 1 2 3 4 | Gesamtholz | SP : SP | Gesamtholz | Satz 4 3 2 1 | Name */
   .du__zeile {
     display: grid;
-    grid-template-columns: 1fr 110px 520px 110px 1fr;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 13px 24px;
+    padding: 14px 24px;
     background: rgba(255, 255, 255, .03);
     border-top: 1px solid var(--linie);
   }
@@ -272,75 +260,73 @@
 
   .du__name {
     font-family: 'Oswald', sans-serif;
-    font-size: 32px;
+    font-size: 34px;
     color: #93A5C6;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .du__name--heim { text-align: right; }
+  .du__name--gast { text-align: left; }
   .du__name.vorn { color: #FFFFFF; font-weight: 600; }
 
-  .du__holz { font-family: 'Oswald', sans-serif; font-size: 34px; color: #93A5C6; }
-  .du__holz--heim { text-align: right; padding-right: 16px; }
-  .du__holz--gast { padding-left: 16px; }
+  /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
+  .du__holz {
+    min-width: 106px;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 33px;
+    line-height: 1.1;
+    color: #FFFFFF;
+    white-space: nowrap;
+  }
+  .du__holz--heim { margin-left: 6px; }
+  .du__holz--gast { margin-right: 6px; }
   .du__holz.gold { color: var(--gold); font-weight: 600; }
 
-  /* Satz für Satz: "146:132" – Heim links, Gast rechts wie in der Zeile */
   .du__mitte {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   .du__satz {
-    width: 96px;
+    width: 90px;
     text-align: center;
-    padding: 7px 0;
+    padding: 9px 0;
     background: rgba(255, 255, 255, .05);
     font-family: 'Oswald', sans-serif;
-    font-size: 22px;
+    font-size: 26px;
+    line-height: 1.2;
     color: #93A5C6;
     white-space: nowrap;
   }
-  .du__satz .st { color: var(--blau5); }
-  .du__satz b { font-weight: 600; color: #FFFFFF; }
+  .du__satz--sieg { color: #FFFFFF; font-weight: 600; }
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
   .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
-  .du__satz--live .st, .du__satz--live b { color: var(--gold); }
 
   .du__sp {
-    width: 96px;
-    margin-left: 8px;
+    width: 132px;
+    margin: 0 10px;
     text-align: center;
     font-weight: 700;
-    font-size: 23px;
+    font-size: 26px;
+    line-height: 1.2;
     color: var(--blau2);
     background: rgba(255, 255, 255, .07);
-    padding: 7px 0;
+    padding: 9px 0;
     white-space: nowrap;
   }
   .du__sp--live { color: var(--navy); background: var(--gold); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
-  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 19px; color: var(--blau4); }
+  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 21px; color: var(--blau4); }
 
   .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
 
-  /* ---------- Tafel STATISTIK (Stil des Pausen-Screens 1G) ---------- */
+  /* ---------- Tafel STATISTIK (Stil des Pausen-Screens 1G) ----------
+     Ohne Team-Kästen: Wer links und rechts ist, steht schon groß im
+     Kopf – die Balkenfarben entsprechen den Farbbalken dort. */
 
-  .st__chips { display: flex; justify-content: space-between; margin-bottom: 26px; }
-  .st__chip {
-    padding: 8px 22px;
-    font-family: 'Oswald', sans-serif;
-    font-weight: 600; font-size: 24px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    max-width: 620px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .st__chip--heim { background: linear-gradient(180deg, var(--heim), var(--heim-dunkel)); }
-  .st__chip--gast { background: linear-gradient(180deg, var(--gast), var(--gast-dunkel)); }
-
-  .st__zeilen { display: flex; flex-direction: column; gap: 24px; }
+  .st__zeilen { display: flex; flex-direction: column; gap: 30px; }
   .st__zeile { display: flex; align-items: center; gap: 22px; }
 
   .st__wert {
@@ -438,7 +424,6 @@
     <div id="liga"></div>
     <div id="kopf-rechts">
       <div id="uhr">--:--</div>
-      <div class="status-badge" id="status" hidden><i class="status-badge__dot"></i><span id="status-text">LIVE</span></div>
     </div>
   </header>
 
@@ -475,10 +460,6 @@
     <section class="tafel" id="tafel-statistik" hidden>
       <div class="tafel__mitte">
         <div class="tafel__lbl">TEAM-STATISTIK</div>
-        <div class="st__chips">
-          <span class="st__chip st__chip--heim" id="chip-heim">–</span>
-          <span class="st__chip st__chip--gast" id="chip-gast">–</span>
-        </div>
         <div class="st__zeilen" id="statistik"></div>
       </div>
     </section>
@@ -703,29 +684,27 @@ function renderDuelle(s) {
       else if (hH !== hG) { siegH = hH > hG; siegG = hG > hH; }
     }
 
-    // Satz für Satz: abgeschlossene Sätze aus dem Duell, der laufende von
-    // den Bahnen (goldenes Feld, zählt live mit), der Rest bleibt leer.
+    // Satz für Satz je Seite: abgeschlossene Sätze aus dem Duell, der
+    // laufende von den Bahnen (goldenes Feld, zählt live mit), der Rest
+    // bleibt leer. Sieger eines Satzes hell.
     const saetzeH = Array.isArray(d.saetzeHeim) ? d.saetzeHeim : [];
     const saetzeG = Array.isArray(d.saetzeGast) ? d.saetzeGast : [];
     const lv = live[num(d.pos)] || {};
-    let saetze = '';
-    for (let i = 0; i < sjd; i++) {
-      const fertigH = i < saetzeH.length;
-      const fertigG = i < saetzeG.length;
-      const wh = fertigH ? num(saetzeH[i])
-        : (lv.heim && lv.heim.satz === i + 1 ? lv.heim.wert : null);
-      const wg = fertigG ? num(saetzeG[i])
-        : (lv.gast && lv.gast.satz === i + 1 ? lv.gast.wert : null);
-      if (wh === null && wg === null) {
-        saetze += '<span class="du__satz du__satz--leer">–</span>';
-        continue;
-      }
-      const beide = fertigH && fertigG;
-      const kl = beide ? 'du__satz' : 'du__satz du__satz--live';
-      const bh = beide && wh > wg ? '<b>' + wh + '</b>' : (wh === null ? '–' : wh);
-      const bg = beide && wg > wh ? '<b>' + wg + '</b>' : (wg === null ? '–' : wg);
-      saetze += '<span class="' + kl + '">' + bh + '<span class="st">:</span>' + bg + '</span>';
-    }
+    const zelle = (eigen, gegner, laufend, i) => {
+      const gebucht = i < eigen.length;
+      const wert = gebucht ? num(eigen[i])
+        : (laufend && laufend.satz === i + 1 ? laufend.wert : null);
+      if (wert === null) return '<span class="du__satz du__satz--leer">–</span>';
+      let kl = 'du__satz';
+      if (!(gebucht && i < gegner.length)) kl += ' du__satz--live';
+      else if (num(eigen[i]) > num(gegner[i])) kl += ' du__satz--sieg';
+      return '<span class="' + kl + '">' + wert + '</span>';
+    };
+    let heimSaetze = '';
+    let gastSaetze = '';
+    for (let i = 0; i < sjd; i++) heimSaetze += zelle(saetzeH, saetzeG, lv.heim, i);
+    // Gast gespiegelt: Satz 4, 3, 2, 1 – wie im Spiegelbild der Heimseite
+    for (let i = sjd - 1; i >= 0; i--) gastSaetze += zelle(saetzeG, saetzeH, lv.gast, i);
 
     const dg = Math.ceil(num(d.pos) / 2) || 1;
     let sp;
@@ -739,10 +718,14 @@ function renderDuelle(s) {
     html +=
       '<div class="' + zeileKl + '">' +
       '<span class="du__name du__name--heim' + (siegH || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
+      '<span class="du__mitte">' +
+      heimSaetze +
       '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
-      '<span class="du__mitte">' + saetze + '<span class="' + spKl + '">' + sp + '</span></span>' +
+      '<span class="' + spKl + '">' + sp + '</span>' +
       '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
-      '<span class="du__name' + (siegG || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
+      gastSaetze +
+      '</span>' +
+      '<span class="du__name du__name--gast' + (siegG || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;
@@ -788,10 +771,6 @@ function fmtStat(v, zeile) {
 }
 
 function renderStatistik(s) {
-  const teams = s.teams || [];
-  setText($('chip-heim'), (teams[0] && teams[0].name) || '–');
-  setText($('chip-gast'), (teams[1] && teams[1].name) || '–');
-
   const kz = kennzahlen(s);
   for (const r of statRefs) {
     const h = kz.heim[r.zeile.key];
@@ -856,28 +835,8 @@ function renderKopf(s) {
     .filter(Boolean).join(' · ').toUpperCase();
   setText($('liga'), liga || String(wk.bezeichnung || ''));
 
-  // Status-Badge rechts oben
-  const badge = $('status');
-  const text = $('status-text');
-  badge.classList.remove('status-badge--live', 'status-badge--demo', 'status-badge--fertig');
-  if (s.demo) {
-    badge.hidden = false;
-    badge.classList.add('status-badge--demo');
-    setText(text, 'AUFZEICHNUNG');
-  } else if (s.matchFertig) {
-    badge.hidden = false;
-    badge.classList.add('status-badge--fertig');
-    setText(text, 'BEENDET');
-  } else if (num(s.wurfAnzahl) > 0) {
-    badge.hidden = false;
-    badge.classList.add('status-badge--live');
-    setText(text, 'LIVE');
-  } else {
-    badge.hidden = true;
-  }
-
   const info = [wk.bezeichnung, wk.ort].filter(Boolean).join(' · ');
-  setText($('wk-info'), info);
+  setText($('wk-info'), info + (s.demo ? ' · Aufzeichnung' : ''));
   setText($('stand'), s.zeit ? 'Stand ' + s.zeit : '');
 }
 
