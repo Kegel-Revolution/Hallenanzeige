@@ -387,7 +387,22 @@
   }
   #stand { font-size: 17px; color: var(--blau4); white-space: nowrap; }
 
-  /* Fortschritts-Striche wie beim Pausen-Screen des Streams */
+  /* Tafel-Wechsel: Countdown zur nächsten Tafel + Fortschritts-Striche
+     wie beim Pausen-Screen des Streams */
+  #wechsel { display: flex; align-items: center; gap: 18px; }
+
+  #wechsel-text {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 23px;
+    letter-spacing: .09em;
+    color: var(--blau2);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  #wechsel-text:empty { display: none; }
+  #wechsel-text b { color: var(--gold); font-weight: 600; }
+
   #punkte { display: flex; gap: 8px; }
   #punkte .dot { width: 130px; height: 6px; background: rgba(255, 255, 255, .18); }
   #punkte .dot i {
@@ -472,7 +487,10 @@
 
   <footer id="fuss">
     <span id="wk-info"></span>
-    <div id="punkte"></div>
+    <div id="wechsel">
+      <span id="wechsel-text"></span>
+      <div id="punkte"></div>
+    </div>
     <span id="stand"></span>
   </footer>
 
@@ -886,6 +904,7 @@ function renderTafeln() {
   if (ansichtFest && tafeln.includes(ansichtFest)) {
     aktiv = ansichtFest;
     $('punkte').innerHTML = '';
+    $('wechsel-text').textContent = '';
   } else {
     const neu = tafeln.map((t) => [t, WECHSELSEK]);
     if (JSON.stringify(neu) !== JSON.stringify(ablauf)) {
@@ -900,11 +919,13 @@ function renderTafeln() {
     }
     aktiv = ablauf[ablaufPos][0];
 
-    // Fortschritts-Striche wie beim Pausen-Screen des Streams –
-    // nur wenn wirklich mehrere Tafeln im Wechsel sind
+    // Countdown zur nächsten Tafel + Fortschritts-Striche wie beim
+    // Pausen-Screen des Streams – nur wenn wirklich gewechselt wird
     const punkte = $('punkte');
+    const wtext = $('wechsel-text');
     if (ablauf.length < 2) {
       punkte.innerHTML = '';
+      wtext.textContent = '';
     } else {
       if (punkte.children.length !== ablauf.length) {
         punkte.innerHTML = ablauf.map(() => '<span class="dot"><i></i></span>').join('');
@@ -914,6 +935,10 @@ function renderTafeln() {
           : Math.min(100, 100 * (Date.now() - tafelSeit) / 1000 / ablauf[ablaufPos][1]);
         punkte.children[i].firstElementChild.style.width = anteil + '%';
       }
+      const NAMEN = { duelle: 'DIE DUELLE', statistik: 'TEAM-STATISTIK' };
+      const naechste = ablauf[(ablaufPos + 1) % ablauf.length][0];
+      const rest = Math.max(0, Math.ceil(ablauf[ablaufPos][1] - vergangen));
+      wtext.innerHTML = 'GLEICH: <b>' + NAMEN[naechste] + '</b> &middot; ' + rest + ' s';
     }
   }
 
