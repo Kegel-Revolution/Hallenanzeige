@@ -21,9 +21,16 @@
     ?ansicht=aufstellung|statistik     eine Tafel fest einstellen
     ?ansicht=auto                      automatischer Wechsel (Vorgabe)
     ?wechselsek=20                     Standzeit je Tafel in Sekunden
-    ?heim=2563BC&gast=D8232E           Teamfarben (Hex ohne #)
+    ?heim=2563BC&gast=D8232E           Teamfarben fest vorgeben (Hex ohne #)
+    ?overlay=192.168.1.60:4750         Teamfarben vom Stream-Rechner holen,
+                                       damit Halle und Stream gleich aussehen
     ?quelle=192.168.1.50:8080          Bridge auf einem anderen Rechner
                                        (nötig, wenn die Datei lokal liegt)
+
+  Farben werden in dieser Reihenfolge bestimmt: ?heim/?gast (fest) vor dem
+  Stream-Overlay (?overlay=) vor der Vereinsliste unten im Skript vor der
+  Vorgabe. Ist der Stream-Rechner aus, bleibt die Halle also trotzdem
+  richtig eingefärbt.
   Tasten: 1 = Aufstellung fest, 2 = Statistik fest, 0 = Automatik,
   F = Vollbild.
 -->
@@ -514,18 +521,103 @@ const BASIS = P.get('quelle')
 // Standzeit je Tafel (wie "Tafel-Wechsel" beim Pausen-Screen des Streams)
 const WECHSELSEK = Math.max(5, parseInt(P.get('wechselsek') || P.get('tafelsek') || '20', 10) || 20);
 
-// Teamfarben: dunkle Variante für die Verläufe wird mitgerechnet
+/* ---------------------------------------------------------- Teamfarben */
+
+/**
+ * Gemerkte Vereinsfarben – dieselbe Liste wie `data/vereine.json` im
+ * Stream-Overlay. Beide von Hand synchron halten: Dann zeigt die Halle
+ * dieselben Farben wie der Stream, auch wenn der Stream-Rechner gar nicht
+ * läuft. Zugeordnet wird über den Vereinsnamen (Teilstring, längster
+ * Treffer gewinnt) – genau wie die Wappen im Overlay.
+ */
+const VEREINE = [
+  { name: 'Raindorf', farbe: '#2563BC' }
+];
+
+// Vorgabe, wenn ein Verein (noch) nicht in der Liste steht.
+const STANDARD = { heim: '#2563BC', gast: '#D8232E' };
+
+/** "2563BC" oder "#2563BC" -> "#2563BC"; alles andere -> "". */
+function hexOderLeer(v) {
+  const h = String(v || '').trim().replace(/^#/, '');
+  return /^[0-9a-fA-F]{6}$/.test(h) ? '#' + h : '';
+}
+
+/** Vereinsname auf einen vergleichbaren Schlüssel bringen. */
+function vereinsSchluessel(v) {
+  return String(v || '')
+    .normalize('NFC')
+    .toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function farbeVonVerein(name) {
+  const key = vereinsSchluessel(name);
+  if (!key) return '';
+  let treffer = null;
+  for (const v of VEREINE) {
+    const vk = vereinsSchluessel(v.name);
+    if (!vk || !key.includes(vk)) continue;
+    if (!treffer || vk.length > vereinsSchluessel(treffer.name).length) treffer = v;
+  }
+  return treffer ? hexOderLeer(treffer.farbe) : '';
+}
+
+// Fest vorgegeben (?heim/?gast) und Adresse des Stream-Rechners (?overlay=)
+const FEST = { heim: hexOderLeer(P.get('heim')), gast: hexOderLeer(P.get('gast')) };
+const OVERLAY = P.get('overlay')
+  ? 'http://' + P.get('overlay').replace(/^[a-z]+:\/\//i, '')
+  : '';
+
+let vomOverlay = { heim: '', gast: '' };
+let teamNamen = { heim: '', gast: '' };
+const farbeJetzt = { heim: '', gast: '' };
+
+/** Farbe setzen; die dunkle Variante für die Verläufe wird mitgerechnet. */
 function setzeFarbe(name, hex) {
-  const h = String(hex || '').replace('#', '');
-  if (!/^[0-9a-fA-F]{6}$/.test(h)) return;
+  const h = hexOderLeer(hex).slice(1);
+  if (!h) return;
   const dunkel = [0, 2, 4]
     .map((i) => Math.round(parseInt(h.slice(i, i + 2), 16) * 0.55))
     .map((v) => v.toString(16).padStart(2, '0')).join('');
   document.documentElement.style.setProperty('--' + name, '#' + h);
   document.documentElement.style.setProperty('--' + name + '-dunkel', '#' + dunkel);
 }
-setzeFarbe('heim', P.get('heim'));
-setzeFarbe('gast', P.get('gast'));
+
+/** Gültige Farbe je Seite bestimmen und anwenden (nur bei Änderung). */
+function farbenAnwenden() {
+  for (const seite of ['heim', 'gast']) {
+    const farbe = FEST[seite] || vomOverlay[seite] ||
+      farbeVonVerein(teamNamen[seite]) || STANDARD[seite];
+    if (farbe === farbeJetzt[seite]) continue;
+    farbeJetzt[seite] = farbe;
+    setzeFarbe(seite, farbe);
+  }
+}
+
+/**
+ * Farben vom Stream-Rechner holen (/api/farben des Overlay-Servers). Der
+ * läuft auf einem anderen Rechner und ist nicht immer an – Fehler sind
+ * deshalb kein Drama, dann gilt die Vereinsliste.
+ */
+function holeOverlayFarben() {
+  if (!OVERLAY) return;
+  fetch(OVERLAY + '/api/farben')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (!d) return;
+      vomOverlay = { heim: hexOderLeer(d.heim), gast: hexOderLeer(d.gast) };
+      farbenAnwenden();
+    })
+    .catch(() => {});
+}
+
+farbenAnwenden();
+if (OVERLAY) {
+  holeOverlayFarben();
+  setInterval(holeOverlayFarben, 15000);
+}
 
 /* ---------------------------------------------------------- Helfer */
 
@@ -973,6 +1065,14 @@ function render(s) {
     ablaufPos = 0;
     tafelSeit = Date.now();
   }
+
+  // Teamfarben folgen den Mannschaften (Vereinsliste bzw. Stream-Rechner).
+  const teams = Array.isArray(s.teams) ? s.teams : [];
+  teamNamen = {
+    heim: String((teams[0] || {}).name || ''),
+    gast: String((teams[1] || {}).name || '')
+  };
+  farbenAnwenden();
 
   renderKopf(s);
   renderTafeln();
