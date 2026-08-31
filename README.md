@@ -85,8 +85,30 @@ An die Adresse anhängen, kombinierbar mit `&`:
 | `?ansicht=aufstellung` \| `statistik` | eine Tafel fest einstellen — so können die Bildschirme Verschiedenes zeigen |
 | `?ansicht=auto` | automatischer Wechsel (Vorgabe) |
 | `?wechselsek=20` | Standzeit je Tafel in Sekunden |
-| `?heim=2563BC&gast=D8232E` | Teamfarben (Hex ohne `#`) |
+| `?heim=2563BC&gast=D8232E` | Teamfarben fest vorgeben (Hex ohne `#`) |
+| `?overlay=192.168.1.60:4750` | Teamfarben vom Stream-Rechner holen, damit Halle und Stream gleich aussehen |
 | `?quelle=192.168.1.50:8080` | Bridge-Adresse, falls die Datei nicht von der Bridge selbst kommt |
+
+### Teamfarben
+
+Die Farben der beiden Mannschaftsbalken bestimmt die Anzeige in dieser
+Reihenfolge:
+
+1. **`?heim=` / `?gast=`** — fest vorgegeben, schlägt alles andere.
+2. **Stream-Rechner** — steht `?overlay=<IP>:4750` in der Adresse, fragt die
+   Anzeige alle 15 Sekunden `/api/farben` des Overlay-Servers ab und
+   übernimmt, was im Stream eingestellt ist. Damit reicht ein Klick im
+   Control-Panel, und Halle wie Stream zeigen dasselbe.
+3. **Vereinsliste** — die Konstante `VEREINE` im Skript von `anzeige.html`
+   ordnet dem Vereinsnamen aus CC2 eine Farbe zu (Teilstring, längster
+   Treffer gewinnt — genau wie die Wappen im Overlay). Sie ist die Kopie von
+   `data/vereine.json` aus dem Overlay-Repository und muss von Hand
+   synchron gehalten werden; dafür stimmen die Farben auch dann, wenn am
+   Spieltag gar nicht gestreamt wird und der Stream-Rechner aus ist.
+4. **Vorgabe** — Heim `#2563BC`, Gast `#D8232E`.
+
+Ein unbekannter Verein bekommt also die Vorgabe und nicht die Farbe des
+letzten Gegners.
 
 | Taste | Wirkung |
 |---|---|
