@@ -89,6 +89,22 @@ An die Adresse anhängen, kombinierbar mit `&`:
 | `?overlay=192.168.1.60:4750` | Teamfarben vom Stream-Rechner holen, damit Halle und Stream gleich aussehen |
 | `?quelle=192.168.1.50:8080` | Bridge-Adresse, falls die Datei nicht von der Bridge selbst kommt |
 
+### Starten: erst Fenster, dann Vollbild
+
+`START_Anzeige.bat` fragt beim Doppelklick, wie geöffnet werden soll:
+
+- **`[1] Fenster`** — ein normales Fenster. Auf den Bildschirm ziehen, der
+  in der Halle hängt, hineinklicken und `F` drücken: Vollbild auf dem
+  richtigen Schirm. Der Weg, wenn mehrere Bildschirme im Spiel sind. Ohne
+  Eingabe startet nach 20 Sekunden dieser Modus.
+- **`[2] Vollbild`** — sofort bildschirmfüllend (Kiosk, Ende mit `Alt+F4`).
+
+Oben in der Datei stehen die Schalter: `ADRESSE` (Bahn-PC samt Port),
+`ANSICHT` (welche Tafel), `OVERLAY` (Teamfarben vom Stream-Rechner) sowie
+`GROESSE` und `POSITION` für den Fenstermodus — wer immer denselben
+Bildschirm bespielt, trägt dort z. B. `1920,0` ein und spart sich das
+Schieben.
+
 ### Teamfarben
 
 Die Farben der beiden Mannschaftsbalken bestimmt die Anzeige in dieser
