@@ -42,15 +42,16 @@ Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 | **Aufstellung** | 180 s | alle Paarungen mit den Satzergebnissen Satz für Satz und den Satzpunkten |
 | **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
 
-**Farben sagen, wer wo gewonnen hat** — und zwar nur dort, wo eine Zahl
-steht: Der gewonnene Satz bekommt einen Strich in der Teamfarbe unter der
-Zahl, die höhere Satzpunktzahl im Duell steht ausgefüllt. Die Satzzahlen
-selbst stehen frei, ohne Kachel — acht ausgefüllte Kästchen je Zeile sahen
-nach Mauer aus. Gold heißt immer „läuft gerade": der laufende Satz und der
-Rahmen um die Satzpunkte des laufenden Duells. Zwei Bedeutungen, zwei
-Farben, damit nichts durcheinandergeht. Die Namen und die Satzpunkte oben
-im Kopf bleiben bewusst ohne Farbe — sonst liegt auf einer Zeile mehr
-Farbe als Information.
+**Farben sagen, wer wo gewonnen hat** — und zwar nur an den Satzzahlen:
+Der gewonnene Satz ist in der Teamfarbe ausgefüllt. Gold heißt immer
+„läuft gerade": der laufende Satz und die Satzpunkte des laufenden Duells.
+Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
+
+Ohne Farbe bleiben bewusst: die **Namen**, die **Satzpunkte in der Mitte**
+der Zeile (dort steht die führende Zahl nur weiß und fett — ein weiterer
+gefüllter Block zwischen den beiden Satz-Reihen wirkte wie ein
+Fremdkörper) und die **Satzpunkte oben im Kopf**. Sonst liegt auf einer
+Zeile mehr Farbe als Information.
 
 **Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den
 Satzzahlen — vorher klebten sie daran, und aus zehn Metern war nicht zu
