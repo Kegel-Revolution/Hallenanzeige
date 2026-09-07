@@ -47,17 +47,14 @@ Der gewonnene Satz ist in der Teamfarbe ausgefüllt. Gold heißt immer
 „läuft gerade": der laufende Satz und die Satzpunkte des laufenden Duells.
 Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
 
-Ohne Farbe bleiben bewusst: die **Namen**, die **Satzpunkte in der Mitte**
-der Zeile (dort steht die führende Zahl nur weiß und fett — ein weiterer
-gefüllter Block zwischen den beiden Satz-Reihen wirkte wie ein
-Fremdkörper) und die **Satzpunkte oben im Kopf**. Sonst liegt auf einer
-Zeile mehr Farbe als Information.
+In der **Mitte der Zeile** steht der Satzpunktstand des Duells: Der
+Führende sitzt in einer runden Kapsel in seiner Teamfarbe — Farbe so
+kräftig wie an den Satzfeldern, aber ohne die eckige Fläche, die dort
+zwischen den beiden Satz-Reihen wie ein Fremdkörper wirkte. Läuft das
+Duell noch, ist die Kapsel gold statt in der Teamfarbe.
 
-**Das Gesamtholz steht beim Spieler**, gleich neben seinem Namen. Vorher
-stand es in der Zeilenmitte, direkt neben den Satzpunkten: Dort trafen
-drei Zahlengruppen aufeinander (Holz, Satzpunkte, Holz), und keine war
-auf einen Blick einer Seite zuzuordnen. In der Mitte steht jetzt nur noch
-der Satzpunktstand des Duells.
+Ohne Farbe bleiben bewusst die **Namen** und die **Satzpunkte oben im
+Kopf** — sonst liegt auf einer Zeile mehr Farbe als Information.
 
 **Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den
 Satzzahlen — vorher klebten sie daran, und aus zehn Metern war nicht zu

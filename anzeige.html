@@ -295,20 +295,7 @@
   .du__name.laeuft { color: #FFFFFF; }
   .du__name.sieger { color: #FFFFFF; font-weight: 600; }
 
-  /* Name und Gesamtholz gehören zusammen und stehen deshalb zusammen –
-     am äußeren Rand der Zeile. Vorher stand das Holz in der Mitte, direkt
-     neben den Satzpunkten: dort trafen drei Zahlengruppen aufeinander
-     (Holz, Satzpunkte, Holz), und keine war einer Seite zuzuordnen. */
-  .du__aussen {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    min-width: 0;
-  }
-  .du__aussen--heim { justify-self: start; }
-  .du__aussen--gast { justify-self: end; }
-
-  /* Gesamtholz des Spielers – Führender in Gold */
+  /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
   .du__holz {
     min-width: 92px;
     text-align: center;
@@ -317,8 +304,9 @@
     line-height: 1.1;
     color: #FFFFFF;
     white-space: nowrap;
-    flex: 0 0 auto;
   }
+  .du__holz--heim { margin-left: 6px; }
+  .du__holz--gast { margin-right: 6px; }
   .du__holz.gold { color: var(--gold); font-weight: 600; }
 
   .du__mitte {
@@ -348,30 +336,34 @@
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
   .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
 
-  /* Satzpunkte des Duells – die Mitte der Zeile. Hier steht bewusst KEIN
-     Kasten: Zwischen den beiden Satz-Reihen wirkte ein weiterer gefüllter
-     Block wie ein Fremdkörper. Es reicht, dass die führende Zahl weiß und
-     fett steht und die andere zurücktritt. */
+  /* Satzpunkte des Duells – die Mitte der Zeile. Der Führende steht in
+     einer runden Kapsel in seiner Teamfarbe: Farbe so kräftig wie bei den
+     Satzfeldern, aber ohne die eckige Fläche, die zwischen den beiden
+     Satz-Reihen wie ein Fremdkörper wirkte. Die Rundung setzt die Mitte
+     von den Kacheln links und rechts ab, statt mit ihnen zu konkurrieren. */
   .du__sp {
-    width: 132px;
-    margin: 0 18px;
+    width: 128px;
+    margin: 0 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 6px;
     white-space: nowrap;
   }
   .du__spz {
-    min-width: 38px;
+    min-width: 46px;
+    padding: 3px 10px;
+    border-radius: 999px;
     text-align: center;
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
-    font-size: 36px;
-    line-height: 1.2;
+    font-size: 32px;
+    line-height: 1.25;
     color: var(--blau4);
   }
-  .du__spz--heim, .du__spz--gast { color: #FFFFFF; }
-  .du__sptr { font-style: normal; font-weight: 400; font-size: 26px; color: var(--blau5); }
+  .du__spz--heim { background: var(--heim); color: #FFFFFF; }
+  .du__spz--gast { background: var(--gast); color: #FFFFFF; }
+  .du__sptr { font-style: normal; font-weight: 400; font-size: 24px; color: var(--blau5); }
   .du__spdg {
     font-family: 'Oswald', sans-serif;
     font-weight: 600;
@@ -379,11 +371,10 @@
     color: var(--blau4);
     padding: 4px 0;
   }
-  /* Laufendes Duell: die Satzpunkte stehen in Gold – derselbe Sinn wie
-     beim laufenden Satz. */
-  .du__sp--live .du__spz { color: rgba(232, 178, 26, .55); }
+  /* Laufendes Duell: Der Führende bekommt die goldene Kapsel – derselbe
+     Sinn wie beim laufenden Satz, der Stand ist ja noch vorläufig. */
   .du__sp--live .du__spz--heim,
-  .du__sp--live .du__spz--gast { color: var(--gold); }
+  .du__sp--live .du__spz--gast { background: var(--gold); color: var(--navy); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
 
   .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
@@ -907,19 +898,15 @@ function renderDuelle(s) {
     const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
     html +=
       '<div class="' + zeileKl + '">' +
-      '<span class="du__aussen du__aussen--heim">' +
       '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
-      '<span class="du__holz' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
-      '</span>' +
       '<span class="du__mitte">' +
       heimSaetze +
+      '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
       '<span class="' + spKl + '">' + sp + '</span>' +
+      '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       gastSaetze +
       '</span>' +
-      '<span class="du__aussen du__aussen--gast">' +
-      '<span class="du__holz' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
-      '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;
