@@ -47,13 +47,13 @@ Der gewonnene Satz ist in der Teamfarbe ausgefüllt. Gold heißt immer
 „läuft gerade": der laufende Satz und die Satzpunkte des laufenden Duells.
 Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
 
-In der **Mitte der Zeile** steht der Satzpunktstand des Duells: Der
-Führende sitzt in einer runden Kapsel in seiner Teamfarbe — Farbe so
-kräftig wie an den Satzfeldern, aber ohne die eckige Fläche, die dort
-zwischen den beiden Satz-Reihen wie ein Fremdkörper wirkte. Läuft das
-Duell noch, ist die Kapsel gold statt in der Teamfarbe.
+In der **Mitte der Zeile** steht der Satzpunktstand des Duells in einem
+ruhigen Feld — dort gehört bewusst keine Teamfarbe hin: Die Farbe liegt
+links und rechts an den Satzfeldern, und zwischen den beiden Reihen soll
+nichts mit ihnen konkurrieren. Läuft das Duell noch, ist das Feld gold;
+der Stand ist dann vorläufig.
 
-Ohne Farbe bleiben bewusst die **Namen** und die **Satzpunkte oben im
+Ohne Farbe bleiben ebenso die **Namen** und die **Satzpunkte oben im
 Kopf** — sonst liegt auf einer Zeile mehr Farbe als Information.
 
 **Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den

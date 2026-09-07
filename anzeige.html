@@ -336,46 +336,26 @@
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
   .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
 
-  /* Satzpunkte des Duells – die Mitte der Zeile. Der Führende steht in
-     einer runden Kapsel in seiner Teamfarbe: Farbe so kräftig wie bei den
-     Satzfeldern, aber ohne die eckige Fläche, die zwischen den beiden
-     Satz-Reihen wie ein Fremdkörper wirkte. Die Rundung setzt die Mitte
-     von den Kacheln links und rechts ab, statt mit ihnen zu konkurrieren. */
+  /* Satzpunkte des Duells – die Mitte der Zeile. Ein ruhiges Feld, kein
+     Farbträger: Die Farbe liegt links und rechts an den Satzfeldern, und
+     zwischen den beiden Reihen soll nichts mit ihnen konkurrieren. Läuft
+     das Duell noch, ist das Feld gold – der Stand ist dann vorläufig. */
   .du__sp {
-    width: 128px;
-    margin: 0 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
-  .du__spz {
-    min-width: 46px;
-    padding: 3px 10px;
-    border-radius: 999px;
+    width: 132px;
+    margin: 0 10px;
     text-align: center;
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
     font-size: 32px;
-    line-height: 1.25;
-    color: var(--blau4);
+    line-height: 1.2;
+    color: var(--blau2);
+    background: rgba(255, 255, 255, .07);
+    padding: 7px 0;
+    white-space: nowrap;
   }
-  .du__spz--heim { background: var(--heim); color: #FFFFFF; }
-  .du__spz--gast { background: var(--gast); color: #FFFFFF; }
-  .du__sptr { font-style: normal; font-weight: 400; font-size: 24px; color: var(--blau5); }
-  .du__spdg {
-    font-family: 'Oswald', sans-serif;
-    font-weight: 600;
-    font-size: 21px;
-    color: var(--blau4);
-    padding: 4px 0;
-  }
-  /* Laufendes Duell: Der Führende bekommt die goldene Kapsel – derselbe
-     Sinn wie beim laufenden Satz, der Stand ist ja noch vorläufig. */
-  .du__sp--live .du__spz--heim,
-  .du__sp--live .du__spz--gast { background: var(--gold); color: var(--navy); }
+  .du__sp--live { color: var(--navy); background: var(--gold); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
+  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 24px; color: var(--blau4); }
 
   .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
 
@@ -885,14 +865,9 @@ function renderDuelle(s) {
     const dg = Math.ceil(num(d.pos) / 2) || 1;
     let sp;
     let spKl = 'du__sp';
-    if (fertig || begonnen) {
-      if (!fertig) spKl += ' du__sp--live';
-      sp = '<b class="du__spz' + (spH > spG ? ' du__spz--heim' : '') + '">' + fmtSp(spH) + '</b>' +
-           '<i class="du__sptr">:</i>' +
-           '<b class="du__spz' + (spG > spH ? ' du__spz--gast' : '') + '">' + fmtSp(spG) + '</b>';
-    } else {
-      sp = '<span class="du__spdg">' + dg + '. DG</span>';
-    }
+    if (fertig) sp = fmtSp(spH) + ' : ' + fmtSp(spG);
+    else if (begonnen) { sp = fmtSp(spH) + ' : ' + fmtSp(spG); spKl += ' du__sp--live'; }
+    else sp = dg + '. DG';
 
     const zeileKl = 'du__zeile' + (begonnen ? '' : ' du__zeile--kommend');
     const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
