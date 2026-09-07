@@ -32,12 +32,28 @@ Duell 1 Punkt für den Führenden, 2 Punkte für die Holz-Führung), nach
 Spielende gilt die Rechnung der Bridge. Darunter Satzpunkte und
 Durchgang/Satz.
 
-Zwei Tafeln wechseln sich automatisch ab (Takt einstellbar):
+Zwei Tafeln wechseln sich automatisch ab — **die Duelle drei Minuten, die
+Statistik zwanzig Sekunden**. Die Ergebnisse sind das, wofür die Leute in
+der Halle hinschauen; vorher standen beide Tafeln gleich lang, und die
+Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 
-| Tafel | Inhalt |
-|---|---|
-| **Aufstellung** | alle Paarungen mit den Satzergebnissen Satz für Satz (der laufende Satz zählt gold mit) und den Satzpunkten — Sieger hell, Holz des Führenden gold, kommende Durchgänge grau |
-| **Statistik** | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
+| Tafel | Standzeit | Inhalt |
+|---|---|---|
+| **Aufstellung** | 180 s | alle Paarungen mit den Satzergebnissen Satz für Satz und den Satzpunkten |
+| **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
+
+**Farben sagen, wer wo gewonnen hat.** Ein gewonnener Satz steht
+ausgefüllt in der Teamfarbe, ebenso die höhere Satzpunktzahl und der Name
+des Duellsiegers. Gold heißt immer „läuft gerade" — der laufende Satz und
+der Rahmen um die Satzpunkte des laufenden Duells. Zwei Bedeutungen, zwei
+Farben, damit nichts durcheinandergeht.
+
+**Die Namen** stehen am äußeren Rand der Zeile, mit einem Balken in der
+Teamfarbe davor — vorher klebten sie an den Satzzahlen, und aus zehn
+Metern war nicht zu erkennen, wo der Name aufhört und die Zahlen anfangen.
+Geschrieben wird **Nachname + Anfangsbuchstabe** („Pointinger J."):
+ausgeschrieben passen die Namen neben acht Satzzahlen nicht, und groß
+sollen sie sein.
 
 Vor dem ersten Wurf steht die Startaufstellung, nach dem Spiel der
 Endstand. Bricht die Verbindung ab, bleibt der letzte Stand stehen und
@@ -84,7 +100,9 @@ An die Adresse anhängen, kombinierbar mit `&`:
 |---|---|
 | `?ansicht=aufstellung` \| `statistik` | eine Tafel fest einstellen — so können die Bildschirme Verschiedenes zeigen |
 | `?ansicht=auto` | automatischer Wechsel (Vorgabe) |
-| `?wechselsek=20` | Standzeit je Tafel in Sekunden |
+| `?duellesek=180` | Standzeit der Duelle in Sekunden |
+| `?statistiksek=20` | Standzeit der Team-Statistik |
+| `?wechselsek=30` | beide Tafeln gleich lang (setzt die beiden oberen außer Kraft) |
 | `?heim=2563BC&gast=D8232E` | Teamfarben fest vorgeben (Hex ohne `#`) |
 | `?overlay=192.168.1.60:4750` | Teamfarben vom Stream-Rechner holen, damit Halle und Stream gleich aussehen |
 | `?quelle=192.168.1.50:8080` | Bridge-Adresse, falls die Datei nicht von der Bridge selbst kommt |

@@ -20,7 +20,9 @@
   Parameter (an die Adresse anhängen):
     ?ansicht=aufstellung|statistik     eine Tafel fest einstellen
     ?ansicht=auto                      automatischer Wechsel (Vorgabe)
-    ?wechselsek=20                     Standzeit je Tafel in Sekunden
+    ?duellesek=180                     Standzeit der Duelle in Sekunden
+    ?statistiksek=20                   Standzeit der Team-Statistik
+    ?wechselsek=30                     beide Tafeln gleich lang
     ?heim=2563BC&gast=D8232E           Teamfarben fest vorgeben (Hex ohne #)
     ?overlay=192.168.1.60:4750         Teamfarben vom Stream-Rechner holen,
                                        damit Halle und Stream gleich aussehen
@@ -213,6 +215,17 @@
     text-align: center;
   }
   #uz-sp { margin-top: 12px; font-size: 30px; color: #FFFFFF; }
+  /* Die Satzpunkte der Mannschaften sind der zweite Blick nach den
+     Mannschaftspunkten – die führende Seite steht in ihrer Farbe. */
+  .uz__sp {
+    display: inline-block;
+    min-width: 58px;
+    padding: 2px 8px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+  }
+  .uz__sp--heim { background: var(--heim); }
+  .uz__sp--gast { background: var(--gast); }
   #uz-stand { margin-top: 2px; font-size: 22px; color: var(--blau1); }
 
   /* ================================================================
@@ -259,28 +272,49 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 14px 24px;
+    padding: 9px 24px;
     background: rgba(255, 255, 255, .03);
     border-top: 1px solid var(--linie);
   }
   .du__zeile:nth-child(odd) { background: rgba(255, 255, 255, .05); }
 
+  /* Der Name steht am AUSSENRAND der Zeile, mit einem Balken in der
+     Teamfarbe davor. Vorher klebte er direkt an den Satzzahlen – aus
+     zehn Metern war nicht zu erkennen, wo der Name aufhört und die
+     Zahlen anfangen. Wer sein Duell gewonnen hat, steht in der
+     Teamfarbe hinterlegt; das sieht man auch aus der letzten Reihe. */
   .du__name {
     font-family: 'Oswald', sans-serif;
-    font-size: 34px;
-    color: #93A5C6;
+    font-size: 44px;
+    line-height: 1.15;
+    color: #B8C6E0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 5px 12px;
+    max-width: 100%;
   }
-  .du__name--heim { text-align: right; }
-  .du__name--gast { text-align: left; }
-  .du__name.vorn { color: #FFFFFF; font-weight: 600; }
+  .du__name--heim {
+    justify-self: start;
+    text-align: left;
+    border-left: 7px solid var(--heim);
+    margin-right: 22px;
+  }
+  .du__name--gast {
+    justify-self: end;
+    text-align: right;
+    border-right: 7px solid var(--gast);
+    margin-left: 22px;
+  }
+  .du__name.laeuft { color: #FFFFFF; }
+  .du__name.sieger { color: #FFFFFF; font-weight: 600; }
+  .du__name--heim.sieger { background: var(--heim); }
+  .du__name--gast.sieger { background: var(--gast); }
 
   /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
   .du__holz {
-    min-width: 106px;
+    min-width: 100px;
     text-align: center;
     font-family: 'Oswald', sans-serif;
-    font-size: 33px;
+    font-size: 40px;
     line-height: 1.1;
     color: #FFFFFF;
     white-space: nowrap;
@@ -293,39 +327,68 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .du__satz {
-    width: 90px;
+    width: 84px;
     text-align: center;
-    padding: 9px 0;
+    padding: 8px 0;
     background: rgba(255, 255, 255, .05);
     font-family: 'Oswald', sans-serif;
-    font-size: 26px;
+    font-size: 36px;
     line-height: 1.2;
     color: #93A5C6;
     white-space: nowrap;
   }
-  .du__satz--sieg { color: #FFFFFF; font-weight: 600; }
+  /* Gewonnener Satz: ausgefüllt in der Teamfarbe. Gold heißt "läuft
+     gerade" – zwei Bedeutungen, zwei Farben, damit nichts durcheinander
+     geht. */
+  .du__satz--sieg { color: #FFFFFF; font-weight: 700; }
+  .du__satz--sieg.du__satz--heim { background: var(--heim); }
+  .du__satz--sieg.du__satz--gast { background: var(--gast); }
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
   .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
 
+  /* Satzpunkte: jede Zahl für sich, die höhere in der Teamfarbe. Das ist
+     der Stand des Duells – er soll so deutlich sein wie die Sätze. */
   .du__sp {
-    width: 132px;
-    margin: 0 10px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 26px;
-    line-height: 1.2;
-    color: var(--blau2);
+    width: 118px;
+    margin: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     background: rgba(255, 255, 255, .07);
-    padding: 9px 0;
+    padding: 5px 0;
     white-space: nowrap;
   }
-  .du__sp--live { color: var(--navy); background: var(--gold); }
+  .du__spz {
+    min-width: 42px;
+    padding: 3px 0;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 33px;
+    line-height: 1.2;
+    color: var(--blau2);
+  }
+  .du__spz--heim { background: var(--heim); color: #FFFFFF; }
+  .du__spz--gast { background: var(--gast); color: #FFFFFF; }
+  .du__sptr { font-style: normal; font-weight: 700; font-size: 24px; color: var(--blau5); }
+  .du__spdg {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 21px;
+    color: var(--blau4);
+    padding: 4px 0;
+  }
+  /* Laufendes Duell: goldener Rahmen statt goldener Fläche – die Farben
+     der Satzpunkte müssen lesbar bleiben. */
+  .du__sp--live { box-shadow: inset 0 0 0 2px var(--gold); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
-  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 21px; color: var(--blau4); }
+  .du__zeile--kommend .du__name--heim { border-left-color: var(--heim-dunkel); }
+  .du__zeile--kommend .du__name--gast { border-right-color: var(--gast-dunkel); }
 
   .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
 
@@ -333,32 +396,36 @@
      Ohne Team-Kästen: Wer links und rechts ist, steht schon groß im
      Kopf – die Balkenfarben entsprechen den Farbbalken dort. */
 
-  .st__zeilen { display: flex; flex-direction: column; gap: 30px; }
-  .st__zeile { display: flex; align-items: center; gap: 22px; }
+  .st__zeilen { display: flex; flex-direction: column; gap: 20px; }
+  .st__zeile { display: flex; align-items: center; gap: 26px; }
 
+  /* Diese Tafel steht allein im Bild und hat Platz im Ueberfluss –
+     die Zahlen duerfen also so gross sein, dass man sie aus der letzten
+     Reihe lesen kann. */
   .st__wert {
-    width: 150px;
+    width: 190px;
     font-family: 'Oswald', sans-serif;
-    font-weight: 600; font-size: 36px;
+    font-weight: 600; font-size: 50px;
+    line-height: 1.1;
   }
   .st__wert--gast { text-align: right; }
   .st__wert.gold { color: var(--gold); }
 
-  .st__balken { flex: 1; height: 14px; background: rgba(255, 255, 255, .1); }
+  .st__balken { flex: 1; height: 18px; background: rgba(255, 255, 255, .1); }
   .st__balken--heim { display: flex; justify-content: flex-end; }
   .st__balken i {
-    display: block; height: 14px; width: 0;
+    display: block; height: 18px; width: 0;
     transition: width .45s cubic-bezier(.2, .7, .25, 1);
   }
   .st__balken--heim i { background: linear-gradient(90deg, var(--heim-dunkel), var(--heim)); }
   .st__balken--gast i { background: linear-gradient(90deg, var(--gast), var(--gast-dunkel)); }
 
   .st__label {
-    width: 360px;
+    width: 430px;
     text-align: center;
-    font-weight: 600; font-size: 20px;
-    letter-spacing: .09em;
-    color: var(--blau2);
+    font-weight: 700; font-size: 30px;
+    letter-spacing: .07em;
+    color: var(--blau1);
   }
 
   /* ---------- Hinweis, wenn (noch) kein Wettkampf läuft ---------- */
@@ -519,7 +586,19 @@ const BASIS = P.get('quelle')
   : (location.protocol === 'file:' ? 'http://localhost:8080' : '');
 
 // Standzeit je Tafel (wie "Tafel-Wechsel" beim Pausen-Screen des Streams)
-const WECHSELSEK = Math.max(5, parseInt(P.get('wechselsek') || P.get('tafelsek') || '20', 10) || 20);
+/* Standzeit je Tafel. Die Duelle sind das, wofür die Leute in der Halle
+   hinschauen – die stehen drei Minuten, die Team-Statistik zwanzig
+   Sekunden. Vorher war beides gleich lang, und die Ergebnisse waren
+   gerade dann weg, wenn jemand hinsah. ?wechselsek= setzt weiterhin
+   beide gleich, ?duellesek= / ?statistiksek= jede für sich. */
+function standzeit(name, vorgabe) {
+  const eigen = parseInt(P.get(name) || '', 10);
+  if (eigen > 0) return Math.max(5, eigen);
+  const beide = parseInt(P.get('wechselsek') || P.get('tafelsek') || '', 10);
+  return Math.max(5, beide > 0 ? beide : vorgabe);
+}
+const DUELLE_SEK = standzeit('duellesek', 180);
+const STATISTIK_SEK = standzeit('statistiksek', 20);
 
 /* ---------------------------------------------------------- Teamfarben */
 
@@ -755,6 +834,27 @@ function renderDuelle(s) {
   const dgs = Math.min(3, Math.max(1,
     Math.round(num((s.wettkampf || {}).anzDurchgaenge) / sjd) || 3));
   const plaetze = Math.max(dgs * 2, ...Object.keys(proPos).map(Number));
+  /**
+   * Anzeigename: Nachname voll, Vorname als Buchstabe ("Pointinger J.").
+   * Ausgeschrieben passen die Namen neben acht Satzzahlen nicht – und
+   * gross sollen sie sein. CC2 liefert "Nachname Vorname"; die Bridge hat
+   * beides ohnehin schon getrennt (spieler[].nachname / .vorname), darauf
+   * verlassen wir uns. Nur wenn der Platz nicht in der Aufstellung steht,
+   * wird selbst getrennt.
+   */
+  const kurzName = (team, pos, voll) => {
+    for (const p of (team && team.spieler) || []) {
+      if (num(p.pos) !== pos) continue;
+      const nach = String(p.nachname || '').trim();
+      const vor = String(p.vorname || '').trim();
+      if (nach) return vor ? nach + ' ' + vor.charAt(0) + '.' : nach;
+      break;
+    }
+    const teile = String(voll || '').trim().split(/\s+/).filter(Boolean);
+    if (teile.length < 2) return teile[0] || '';
+    return teile[0] + ' ' + teile[1].charAt(0) + '.';
+  };
+
   const nameAufPos = (team, pos) => {
     for (const p of (team && team.spieler) || []) {
       if (num(p.pos) === pos) return p.name || '';
@@ -800,34 +900,39 @@ function renderDuelle(s) {
     const saetzeH = Array.isArray(d.saetzeHeim) ? d.saetzeHeim : [];
     const saetzeG = Array.isArray(d.saetzeGast) ? d.saetzeGast : [];
     const lv = live[num(d.pos)] || {};
-    const zelle = (eigen, gegner, laufend, i) => {
+    const zelle = (eigen, gegner, laufend, i, seite) => {
       const gebucht = i < eigen.length;
       const wert = gebucht ? num(eigen[i])
         : (laufend && laufend.satz === i + 1 ? laufend.wert : null);
       if (wert === null) return '<span class="du__satz du__satz--leer">–</span>';
-      let kl = 'du__satz';
+      let kl = 'du__satz du__satz--' + seite;
       if (!(gebucht && i < gegner.length)) kl += ' du__satz--live';
       else if (num(eigen[i]) > num(gegner[i])) kl += ' du__satz--sieg';
       return '<span class="' + kl + '">' + wert + '</span>';
     };
     let heimSaetze = '';
     let gastSaetze = '';
-    for (let i = 0; i < sjd; i++) heimSaetze += zelle(saetzeH, saetzeG, lv.heim, i);
+    for (let i = 0; i < sjd; i++) heimSaetze += zelle(saetzeH, saetzeG, lv.heim, i, 'heim');
     // Gast gespiegelt: Satz 4, 3, 2, 1 – wie im Spiegelbild der Heimseite
-    for (let i = sjd - 1; i >= 0; i--) gastSaetze += zelle(saetzeG, saetzeH, lv.gast, i);
+    for (let i = sjd - 1; i >= 0; i--) gastSaetze += zelle(saetzeG, saetzeH, lv.gast, i, 'gast');
 
     const dg = Math.ceil(num(d.pos) / 2) || 1;
     let sp;
     let spKl = 'du__sp';
-    if (fertig) sp = fmtSp(spH) + ' : ' + fmtSp(spG);
-    else if (begonnen) { sp = fmtSp(spH) + ' : ' + fmtSp(spG); spKl += ' du__sp--live'; }
-    else sp = dg + '. DG';
+    if (fertig || begonnen) {
+      if (!fertig) spKl += ' du__sp--live';
+      sp = '<b class="du__spz' + (spH > spG ? ' du__spz--heim' : '') + '">' + fmtSp(spH) + '</b>' +
+           '<i class="du__sptr">:</i>' +
+           '<b class="du__spz' + (spG > spH ? ' du__spz--gast' : '') + '">' + fmtSp(spG) + '</b>';
+    } else {
+      sp = '<span class="du__spdg">' + dg + '. DG</span>';
+    }
 
     const zeileKl = 'du__zeile' + (begonnen ? '' : ' du__zeile--kommend');
     const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
     html +=
       '<div class="' + zeileKl + '">' +
-      '<span class="du__name du__name--heim' + (siegH || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(kurzName(teams[0], num(d.pos), d.heim) || '–') + wechsel + '</span>' +
       '<span class="du__mitte">' +
       heimSaetze +
       '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
@@ -835,7 +940,7 @@ function renderDuelle(s) {
       '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       gastSaetze +
       '</span>' +
-      '<span class="du__name du__name--gast' + (siegG || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(kurzName(teams[1], num(d.pos), d.gast) || '–') + wechsel + '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;
@@ -925,8 +1030,12 @@ function renderKopf(s) {
   const sjd = saetzeJeDurchgang(s);
   const uzSp = $('uz-sp');
   uzSp.hidden = num(s.wurfAnzahl) === 0;
-  setText(uzSp, 'SATZPUNKTE ' + fmtSp(teams[0] && teams[0].satzpunkte) +
-    ' : ' + fmtSp(teams[1] && teams[1].satzpunkte));
+  const sph = num(teams[0] && teams[0].satzpunkte);
+  const spg = num(teams[1] && teams[1].satzpunkte);
+  uzSp.innerHTML = 'SATZPUNKTE ' +
+    '<b class="uz__sp' + (sph > spg ? ' uz__sp--heim' : '') + '">' + fmtSp(sph) + '</b>' +
+    ' : ' +
+    '<b class="uz__sp' + (spg > sph ? ' uz__sp--gast' : '') + '">' + fmtSp(spg) + '</b>';
 
   let stand = '';
   if (s.matchFertig) {
@@ -998,7 +1107,7 @@ function renderTafeln() {
     $('punkte').innerHTML = '';
     $('wechsel-text').textContent = '';
   } else {
-    const neu = tafeln.map((t) => [t, WECHSELSEK]);
+    const neu = tafeln.map((t) => [t, t === 'duelle' ? DUELLE_SEK : STATISTIK_SEK]);
     if (JSON.stringify(neu) !== JSON.stringify(ablauf)) {
       ablauf = neu;
       ablaufPos = 0;
@@ -1030,7 +1139,10 @@ function renderTafeln() {
       const NAMEN = { duelle: 'DIE DUELLE', statistik: 'TEAM-STATISTIK' };
       const naechste = ablauf[(ablaufPos + 1) % ablauf.length][0];
       const rest = Math.max(0, Math.ceil(ablauf[ablaufPos][1] - vergangen));
-      wtext.innerHTML = 'GLEICH: <b>' + NAMEN[naechste] + '</b> &middot; ' + rest + ' s';
+      // Bei drei Minuten Standzeit ist ein Countdown ab 180 nur Unruhe –
+      // die Ansage kommt erst, wenn der Wechsel wirklich bevorsteht.
+      wtext.innerHTML = rest > 30 ? ''
+        : 'GLEICH: <b>' + NAMEN[naechste] + '</b> &middot; ' + rest + ' s';
     }
   }
 
