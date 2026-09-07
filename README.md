@@ -42,21 +42,22 @@ Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 | **Aufstellung** | 180 s | alle Paarungen mit den Satzergebnissen Satz für Satz und den Satzpunkten |
 | **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
 
-**Farben sagen, wer wo gewonnen hat.** Ein gewonnener Satz steht
-ausgefüllt in der Teamfarbe, ebenso die höhere Satzpunktzahl. Der
-Duellsieger bekommt einen kräftigen Strich in der Teamfarbe unter den
-Namen — eine ausgefüllte Fläche war zwar deutlich, sah neben den ohnehin
-farbigen Satzfeldern aber nach Klotz aus. Gold heißt immer „läuft gerade":
-der laufende Satz und der Rahmen um die Satzpunkte des laufenden Duells.
-Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
+**Farben sagen, wer wo gewonnen hat** — und zwar nur dort, wo eine Zahl
+steht: Ein gewonnener Satz ist in der Teamfarbe ausgefüllt, ebenso die
+höhere Satzpunktzahl im Duell. Gold heißt immer „läuft gerade": der
+laufende Satz und der Rahmen um die Satzpunkte des laufenden Duells. Zwei
+Bedeutungen, zwei Farben, damit nichts durcheinandergeht. Die Namen und
+die Satzpunkte oben im Kopf bleiben bewusst ohne Farbe — sonst liegt auf
+einer Zeile mehr Farbe als Information.
 
-**Die Namen** stehen am äußeren Rand der Zeile, mit einem Balken in der
-Teamfarbe davor — vorher klebten sie an den Satzzahlen, und aus zehn
-Metern war nicht zu erkennen, wo der Name aufhört und die Zahlen anfangen.
-Sie stehen **ausgeschrieben** und so groß wie möglich: 44 px, und wenn ein
-besonders langer Name das Feld sprengt, geht nur diese eine Zeile in
-Zweierschritten herunter, bis er passt (bis 24 px). Eine feste Größe für
-den längsten Namen würde bei allen anderen die halbe Höhe verschenken.
+**Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den
+Satzzahlen — vorher klebten sie daran, und aus zehn Metern war nicht zu
+erkennen, wo der Name aufhört und die Zahlen anfangen. Sie stehen
+**ausgeschrieben** und so groß wie möglich: 44 px, und wenn ein besonders
+langer Name das Feld sprengt, geht nur diese eine Zeile in Zweierschritten
+herunter, bis er passt (bis 24 px). Eine feste Größe für den längsten
+Namen würde bei allen anderen die halbe Höhe verschenken. Der Duellsieger
+steht weiß und fett.
 
 Vor dem ersten Wurf steht die Startaufstellung, nach dem Spiel der
 Endstand. Bricht die Verbindung ab, bleibt der letzte Stand stehen und

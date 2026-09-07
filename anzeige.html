@@ -215,17 +215,6 @@
     text-align: center;
   }
   #uz-sp { margin-top: 12px; font-size: 30px; color: #FFFFFF; }
-  /* Die Satzpunkte der Mannschaften sind der zweite Blick nach den
-     Mannschaftspunkten – die führende Seite steht in ihrer Farbe. */
-  .uz__sp {
-    display: inline-block;
-    min-width: 58px;
-    padding: 2px 8px;
-    font-family: 'Oswald', sans-serif;
-    font-weight: 700;
-  }
-  .uz__sp--heim { background: var(--heim); }
-  .uz__sp--gast { background: var(--gast); }
   #uz-stand { margin-top: 2px; font-size: 22px; color: var(--blau1); }
 
   /* ================================================================
@@ -278,11 +267,12 @@
   }
   .du__zeile:nth-child(odd) { background: rgba(255, 255, 255, .05); }
 
-  /* Der Name steht am AUSSENRAND der Zeile, mit einem Balken in der
-     Teamfarbe davor. Vorher klebte er direkt an den Satzzahlen – aus
-     zehn Metern war nicht zu erkennen, wo der Name aufhört und die
-     Zahlen anfangen. Wer sein Duell gewonnen hat, steht in der
-     Teamfarbe hinterlegt; das sieht man auch aus der letzten Reihe. */
+  /* Der Name steht am AUSSENRAND der Zeile, deutlich abgesetzt von den
+     Satzzahlen – vorher klebte er daran, und aus zehn Metern war nicht zu
+     erkennen, wo der Name aufhört und die Zahlen anfangen. Farbe braucht
+     er dafür keine: Wer gewonnen hat, steht schon an den ausgefüllten
+     Satzfeldern und den Satzpunkten daneben. Der Sieger ist hier nur
+     weiß und fett. */
   .du__name {
     font-family: 'Oswald', sans-serif;
     font-size: 44px;
@@ -295,24 +285,15 @@
   .du__name--heim {
     justify-self: start;
     text-align: left;
-    border-left: 7px solid var(--heim);
     margin-right: 16px;
   }
   .du__name--gast {
     justify-self: end;
     text-align: right;
-    border-right: 7px solid var(--gast);
     margin-left: 16px;
   }
   .du__name.laeuft { color: #FFFFFF; }
-  /* Der Duellsieger bekommt einen kräftigen Strich in der Teamfarbe unter
-     den Namen. Eine ausgefüllte Fläche war zwar deutlich, sah neben den
-     ohnehin farbigen Satzfeldern aber nach Klotz aus – zu viel Farbe auf
-     einer Zeile. Der Strich liegt innen (box-shadow), er folgt also der
-     Textbreite und nicht der Spalte. */
   .du__name.sieger { color: #FFFFFF; font-weight: 600; }
-  .du__name--heim.sieger { box-shadow: inset 0 -6px 0 var(--heim); border-left-width: 11px; }
-  .du__name--gast.sieger { box-shadow: inset 0 -6px 0 var(--gast); border-right-width: 11px; }
 
   /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
   .du__holz {
@@ -392,8 +373,6 @@
      der Satzpunkte müssen lesbar bleiben. */
   .du__sp--live { box-shadow: inset 0 0 0 2px var(--gold); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
-  .du__zeile--kommend .du__name--heim { border-left-color: var(--heim-dunkel); }
-  .du__zeile--kommend .du__name--gast { border-right-color: var(--gast-dunkel); }
 
   .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
 
@@ -1014,12 +993,8 @@ function renderKopf(s) {
   const sjd = saetzeJeDurchgang(s);
   const uzSp = $('uz-sp');
   uzSp.hidden = num(s.wurfAnzahl) === 0;
-  const sph = num(teams[0] && teams[0].satzpunkte);
-  const spg = num(teams[1] && teams[1].satzpunkte);
-  uzSp.innerHTML = 'SATZPUNKTE ' +
-    '<b class="uz__sp' + (sph > spg ? ' uz__sp--heim' : '') + '">' + fmtSp(sph) + '</b>' +
-    ' : ' +
-    '<b class="uz__sp' + (spg > sph ? ' uz__sp--gast' : '') + '">' + fmtSp(spg) + '</b>';
+  setText(uzSp, 'SATZPUNKTE ' + fmtSp(teams[0] && teams[0].satzpunkte) +
+    ' : ' + fmtSp(teams[1] && teams[1].satzpunkte));
 
   let stand = '';
   if (s.matchFertig) {
