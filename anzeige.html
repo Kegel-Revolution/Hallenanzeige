@@ -295,7 +295,20 @@
   .du__name.laeuft { color: #FFFFFF; }
   .du__name.sieger { color: #FFFFFF; font-weight: 600; }
 
-  /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
+  /* Name und Gesamtholz gehören zusammen und stehen deshalb zusammen –
+     am äußeren Rand der Zeile. Vorher stand das Holz in der Mitte, direkt
+     neben den Satzpunkten: dort trafen drei Zahlengruppen aufeinander
+     (Holz, Satzpunkte, Holz), und keine war einer Seite zuzuordnen. */
+  .du__aussen {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    min-width: 0;
+  }
+  .du__aussen--heim { justify-self: start; }
+  .du__aussen--gast { justify-self: end; }
+
+  /* Gesamtholz des Spielers – Führender in Gold */
   .du__holz {
     min-width: 92px;
     text-align: center;
@@ -304,9 +317,8 @@
     line-height: 1.1;
     color: #FFFFFF;
     white-space: nowrap;
+    flex: 0 0 auto;
   }
-  .du__holz--heim { margin-left: 6px; }
-  .du__holz--gast { margin-right: 6px; }
   .du__holz.gold { color: var(--gold); font-weight: 600; }
 
   .du__mitte {
@@ -341,8 +353,8 @@
      Block wie ein Fremdkörper. Es reicht, dass die führende Zahl weiß und
      fett steht und die andere zurücktritt. */
   .du__sp {
-    width: 108px;
-    margin: 0 6px;
+    width: 132px;
+    margin: 0 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -895,15 +907,19 @@ function renderDuelle(s) {
     const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
     html +=
       '<div class="' + zeileKl + '">' +
+      '<span class="du__aussen du__aussen--heim">' +
       '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
+      '<span class="du__holz' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
+      '</span>' +
       '<span class="du__mitte">' +
       heimSaetze +
-      '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
       '<span class="' + spKl + '">' + sp + '</span>' +
-      '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       gastSaetze +
       '</span>' +
+      '<span class="du__aussen du__aussen--gast">' +
+      '<span class="du__holz' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
+      '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;

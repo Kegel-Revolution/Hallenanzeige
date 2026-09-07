@@ -53,6 +53,12 @@ gefüllter Block zwischen den beiden Satz-Reihen wirkte wie ein
 Fremdkörper) und die **Satzpunkte oben im Kopf**. Sonst liegt auf einer
 Zeile mehr Farbe als Information.
 
+**Das Gesamtholz steht beim Spieler**, gleich neben seinem Namen. Vorher
+stand es in der Zeilenmitte, direkt neben den Satzpunkten: Dort trafen
+drei Zahlengruppen aufeinander (Holz, Satzpunkte, Holz), und keine war
+auf einen Blick einer Seite zuzuordnen. In der Mitte steht jetzt nur noch
+der Satzpunktstand des Duells.
+
 **Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den
 Satzzahlen — vorher klebten sie daran, und aus zehn Metern war nicht zu
 erkennen, wo der Name aufhört und die Zahlen anfangen. Sie stehen
