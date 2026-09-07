@@ -32,12 +32,38 @@ Duell 1 Punkt für den Führenden, 2 Punkte für die Holz-Führung), nach
 Spielende gilt die Rechnung der Bridge. Darunter Satzpunkte und
 Durchgang/Satz.
 
-Zwei Tafeln wechseln sich automatisch ab (Takt einstellbar):
+Zwei Tafeln wechseln sich automatisch ab — **die Duelle drei Minuten, die
+Statistik zwanzig Sekunden**. Die Ergebnisse sind das, wofür die Leute in
+der Halle hinschauen; vorher standen beide Tafeln gleich lang, und die
+Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 
-| Tafel | Inhalt |
-|---|---|
-| **Aufstellung** | alle Paarungen mit den Satzergebnissen Satz für Satz (der laufende Satz zählt gold mit) und den Satzpunkten — Sieger hell, Holz des Führenden gold, kommende Durchgänge grau |
-| **Statistik** | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
+| Tafel | Standzeit | Inhalt |
+|---|---|---|
+| **Aufstellung** | 180 s | alle Paarungen mit den Satzergebnissen Satz für Satz und den Satzpunkten |
+| **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
+
+**Farben sagen, wer wo gewonnen hat** — und zwar nur an den Satzzahlen:
+Der gewonnene Satz ist in der Teamfarbe ausgefüllt. Gold heißt immer
+„läuft gerade": der laufende Satz und die Satzpunkte des laufenden Duells.
+Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
+
+In der **Mitte der Zeile** steht der Satzpunktstand des Duells in einem
+ruhigen Feld — dort gehört bewusst keine Teamfarbe hin: Die Farbe liegt
+links und rechts an den Satzfeldern, und zwischen den beiden Reihen soll
+nichts mit ihnen konkurrieren. Läuft das Duell noch, ist das Feld gold;
+der Stand ist dann vorläufig.
+
+Ohne Farbe bleiben ebenso die **Namen** und die **Satzpunkte oben im
+Kopf** — sonst liegt auf einer Zeile mehr Farbe als Information.
+
+**Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den
+Satzzahlen — vorher klebten sie daran, und aus zehn Metern war nicht zu
+erkennen, wo der Name aufhört und die Zahlen anfangen. Sie stehen
+**ausgeschrieben** und so groß wie möglich: 44 px, und wenn ein besonders
+langer Name das Feld sprengt, geht nur diese eine Zeile in Zweierschritten
+herunter, bis er passt (bis 24 px). Eine feste Größe für den längsten
+Namen würde bei allen anderen die halbe Höhe verschenken. Der Duellsieger
+steht weiß und fett.
 
 Vor dem ersten Wurf steht die Startaufstellung, nach dem Spiel der
 Endstand. Bricht die Verbindung ab, bleibt der letzte Stand stehen und
@@ -84,7 +110,9 @@ An die Adresse anhängen, kombinierbar mit `&`:
 |---|---|
 | `?ansicht=aufstellung` \| `statistik` | eine Tafel fest einstellen — so können die Bildschirme Verschiedenes zeigen |
 | `?ansicht=auto` | automatischer Wechsel (Vorgabe) |
-| `?wechselsek=20` | Standzeit je Tafel in Sekunden |
+| `?duellesek=180` | Standzeit der Duelle in Sekunden |
+| `?statistiksek=20` | Standzeit der Team-Statistik |
+| `?wechselsek=30` | beide Tafeln gleich lang (setzt die beiden oberen außer Kraft) |
 | `?heim=2563BC&gast=D8232E` | Teamfarben fest vorgeben (Hex ohne `#`) |
 | `?overlay=192.168.1.60:4750` | Teamfarben vom Stream-Rechner holen, damit Halle und Stream gleich aussehen |
 | `?quelle=192.168.1.50:8080` | Bridge-Adresse, falls die Datei nicht von der Bridge selbst kommt |

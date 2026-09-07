@@ -20,7 +20,9 @@
   Parameter (an die Adresse anhängen):
     ?ansicht=aufstellung|statistik     eine Tafel fest einstellen
     ?ansicht=auto                      automatischer Wechsel (Vorgabe)
-    ?wechselsek=20                     Standzeit je Tafel in Sekunden
+    ?duellesek=180                     Standzeit der Duelle in Sekunden
+    ?statistiksek=20                   Standzeit der Team-Statistik
+    ?wechselsek=30                     beide Tafeln gleich lang
     ?heim=2563BC&gast=D8232E           Teamfarben fest vorgeben (Hex ohne #)
     ?overlay=192.168.1.60:4750         Teamfarben vom Stream-Rechner holen,
                                        damit Halle und Stream gleich aussehen
@@ -259,28 +261,46 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 14px 24px;
+    padding: 9px 24px;
     background: rgba(255, 255, 255, .03);
     border-top: 1px solid var(--linie);
   }
   .du__zeile:nth-child(odd) { background: rgba(255, 255, 255, .05); }
 
+  /* Der Name steht am AUSSENRAND der Zeile, deutlich abgesetzt von den
+     Satzzahlen – vorher klebte er daran, und aus zehn Metern war nicht zu
+     erkennen, wo der Name aufhört und die Zahlen anfangen. Farbe braucht
+     er dafür keine: Wer gewonnen hat, steht schon an den ausgefüllten
+     Satzfeldern und den Satzpunkten daneben. Der Sieger ist hier nur
+     weiß und fett. */
   .du__name {
     font-family: 'Oswald', sans-serif;
-    font-size: 34px;
-    color: #93A5C6;
+    font-size: 44px;
+    line-height: 1.15;
+    color: #B8C6E0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 5px 10px;
+    max-width: 100%;
   }
-  .du__name--heim { text-align: right; }
-  .du__name--gast { text-align: left; }
-  .du__name.vorn { color: #FFFFFF; font-weight: 600; }
+  .du__name--heim {
+    justify-self: start;
+    text-align: left;
+    margin-right: 16px;
+  }
+  .du__name--gast {
+    justify-self: end;
+    text-align: right;
+    margin-left: 16px;
+  }
+  .du__name.laeuft { color: #FFFFFF; }
+  .du__name.sieger { color: #FFFFFF; font-weight: 600; }
 
   /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
   .du__holz {
-    min-width: 106px;
+    min-width: 92px;
     text-align: center;
     font-family: 'Oswald', sans-serif;
-    font-size: 33px;
+    font-size: 38px;
     line-height: 1.1;
     color: #FFFFFF;
     white-space: nowrap;
@@ -293,39 +313,49 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .du__satz {
-    width: 90px;
+    width: 74px;
     text-align: center;
-    padding: 9px 0;
+    padding: 8px 0;
     background: rgba(255, 255, 255, .05);
     font-family: 'Oswald', sans-serif;
-    font-size: 26px;
+    font-size: 34px;
     line-height: 1.2;
     color: #93A5C6;
     white-space: nowrap;
   }
-  .du__satz--sieg { color: #FFFFFF; font-weight: 600; }
+  /* Gewonnener Satz: ausgefüllt in der Teamfarbe. Gold heißt "läuft
+     gerade" – zwei Bedeutungen, zwei Farben, damit nichts durcheinander
+     geht. */
+  .du__satz--sieg { color: #FFFFFF; font-weight: 700; }
+  .du__satz--sieg.du__satz--heim { background: var(--heim); }
+  .du__satz--sieg.du__satz--gast { background: var(--gast); }
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
   .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
 
+  /* Satzpunkte des Duells – die Mitte der Zeile. Ein ruhiges Feld, kein
+     Farbträger: Die Farbe liegt links und rechts an den Satzfeldern, und
+     zwischen den beiden Reihen soll nichts mit ihnen konkurrieren. Läuft
+     das Duell noch, ist das Feld gold – der Stand ist dann vorläufig. */
   .du__sp {
     width: 132px;
     margin: 0 10px;
     text-align: center;
+    font-family: 'Oswald', sans-serif;
     font-weight: 700;
-    font-size: 26px;
+    font-size: 32px;
     line-height: 1.2;
     color: var(--blau2);
     background: rgba(255, 255, 255, .07);
-    padding: 9px 0;
+    padding: 7px 0;
     white-space: nowrap;
   }
   .du__sp--live { color: var(--navy); background: var(--gold); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
-  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 21px; color: var(--blau4); }
+  .du__zeile--kommend .du__sp { font-weight: 600; font-size: 24px; color: var(--blau4); }
 
   .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
 
@@ -333,32 +363,36 @@
      Ohne Team-Kästen: Wer links und rechts ist, steht schon groß im
      Kopf – die Balkenfarben entsprechen den Farbbalken dort. */
 
-  .st__zeilen { display: flex; flex-direction: column; gap: 30px; }
-  .st__zeile { display: flex; align-items: center; gap: 22px; }
+  .st__zeilen { display: flex; flex-direction: column; gap: 20px; }
+  .st__zeile { display: flex; align-items: center; gap: 26px; }
 
+  /* Diese Tafel steht allein im Bild und hat Platz im Ueberfluss –
+     die Zahlen duerfen also so gross sein, dass man sie aus der letzten
+     Reihe lesen kann. */
   .st__wert {
-    width: 150px;
+    width: 190px;
     font-family: 'Oswald', sans-serif;
-    font-weight: 600; font-size: 36px;
+    font-weight: 600; font-size: 50px;
+    line-height: 1.1;
   }
   .st__wert--gast { text-align: right; }
   .st__wert.gold { color: var(--gold); }
 
-  .st__balken { flex: 1; height: 14px; background: rgba(255, 255, 255, .1); }
+  .st__balken { flex: 1; height: 18px; background: rgba(255, 255, 255, .1); }
   .st__balken--heim { display: flex; justify-content: flex-end; }
   .st__balken i {
-    display: block; height: 14px; width: 0;
+    display: block; height: 18px; width: 0;
     transition: width .45s cubic-bezier(.2, .7, .25, 1);
   }
   .st__balken--heim i { background: linear-gradient(90deg, var(--heim-dunkel), var(--heim)); }
   .st__balken--gast i { background: linear-gradient(90deg, var(--gast), var(--gast-dunkel)); }
 
   .st__label {
-    width: 360px;
+    width: 430px;
     text-align: center;
-    font-weight: 600; font-size: 20px;
-    letter-spacing: .09em;
-    color: var(--blau2);
+    font-weight: 700; font-size: 30px;
+    letter-spacing: .07em;
+    color: var(--blau1);
   }
 
   /* ---------- Hinweis, wenn (noch) kein Wettkampf läuft ---------- */
@@ -519,7 +553,19 @@ const BASIS = P.get('quelle')
   : (location.protocol === 'file:' ? 'http://localhost:8080' : '');
 
 // Standzeit je Tafel (wie "Tafel-Wechsel" beim Pausen-Screen des Streams)
-const WECHSELSEK = Math.max(5, parseInt(P.get('wechselsek') || P.get('tafelsek') || '20', 10) || 20);
+/* Standzeit je Tafel. Die Duelle sind das, wofür die Leute in der Halle
+   hinschauen – die stehen drei Minuten, die Team-Statistik zwanzig
+   Sekunden. Vorher war beides gleich lang, und die Ergebnisse waren
+   gerade dann weg, wenn jemand hinsah. ?wechselsek= setzt weiterhin
+   beide gleich, ?duellesek= / ?statistiksek= jede für sich. */
+function standzeit(name, vorgabe) {
+  const eigen = parseInt(P.get(name) || '', 10);
+  if (eigen > 0) return Math.max(5, eigen);
+  const beide = parseInt(P.get('wechselsek') || P.get('tafelsek') || '', 10);
+  return Math.max(5, beide > 0 ? beide : vorgabe);
+}
+const DUELLE_SEK = standzeit('duellesek', 180);
+const STATISTIK_SEK = standzeit('statistiksek', 20);
 
 /* ---------------------------------------------------------- Teamfarben */
 
@@ -800,21 +846,21 @@ function renderDuelle(s) {
     const saetzeH = Array.isArray(d.saetzeHeim) ? d.saetzeHeim : [];
     const saetzeG = Array.isArray(d.saetzeGast) ? d.saetzeGast : [];
     const lv = live[num(d.pos)] || {};
-    const zelle = (eigen, gegner, laufend, i) => {
+    const zelle = (eigen, gegner, laufend, i, seite) => {
       const gebucht = i < eigen.length;
       const wert = gebucht ? num(eigen[i])
         : (laufend && laufend.satz === i + 1 ? laufend.wert : null);
       if (wert === null) return '<span class="du__satz du__satz--leer">–</span>';
-      let kl = 'du__satz';
+      let kl = 'du__satz du__satz--' + seite;
       if (!(gebucht && i < gegner.length)) kl += ' du__satz--live';
       else if (num(eigen[i]) > num(gegner[i])) kl += ' du__satz--sieg';
       return '<span class="' + kl + '">' + wert + '</span>';
     };
     let heimSaetze = '';
     let gastSaetze = '';
-    for (let i = 0; i < sjd; i++) heimSaetze += zelle(saetzeH, saetzeG, lv.heim, i);
+    for (let i = 0; i < sjd; i++) heimSaetze += zelle(saetzeH, saetzeG, lv.heim, i, 'heim');
     // Gast gespiegelt: Satz 4, 3, 2, 1 – wie im Spiegelbild der Heimseite
-    for (let i = sjd - 1; i >= 0; i--) gastSaetze += zelle(saetzeG, saetzeH, lv.gast, i);
+    for (let i = sjd - 1; i >= 0; i--) gastSaetze += zelle(saetzeG, saetzeH, lv.gast, i, 'gast');
 
     const dg = Math.ceil(num(d.pos) / 2) || 1;
     let sp;
@@ -827,7 +873,7 @@ function renderDuelle(s) {
     const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
     html +=
       '<div class="' + zeileKl + '">' +
-      '<span class="du__name du__name--heim' + (siegH || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
       '<span class="du__mitte">' +
       heimSaetze +
       '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
@@ -835,7 +881,7 @@ function renderDuelle(s) {
       '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       gastSaetze +
       '</span>' +
-      '<span class="du__name du__name--gast' + (siegG || (begonnen && !fertig) ? ' vorn' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;
@@ -950,6 +996,31 @@ function renderKopf(s) {
   setText($('stand'), s.zeit ? 'Stand ' + s.zeit : '');
 }
 
+/**
+ * Namen so groß wie möglich – aber immer vollständig.
+ *
+ * Ausgeschrieben sind die Namen sehr verschieden lang: "Funk Lukas" hat
+ * zehn Zeichen, "Pointinger Juergen" achtzehn. Eine Schriftgröße, die für
+ * den längsten reicht, verschenkt bei allen anderen die halbe Höhe.
+ * Deshalb bekommt jede Zeile die größte Schrift, mit der ihr Name noch in
+ * die Spalte passt: Start bei NAME_MAX, herunter in Zweierschritten bis
+ * NAME_MIN. Abgeschnitten wird nur, wenn selbst NAME_MIN nicht reicht.
+ */
+const NAME_MAX = 44;
+const NAME_MIN = 24;
+
+function namenEinpassen() {
+  for (const el of document.querySelectorAll('.du__name')) {
+    let groesse = NAME_MAX;
+    el.style.fontSize = groesse + 'px';
+    // scrollWidth > clientWidth heißt: der Text ist breiter als das Feld.
+    while (groesse > NAME_MIN && el.scrollWidth > el.clientWidth) {
+      groesse -= 2;
+      el.style.fontSize = groesse + 'px';
+    }
+  }
+}
+
 /* ---------------------------------------------------------- Tafel-Wechsel */
 
 let S = null;             // letzter Spielstand
@@ -998,7 +1069,7 @@ function renderTafeln() {
     $('punkte').innerHTML = '';
     $('wechsel-text').textContent = '';
   } else {
-    const neu = tafeln.map((t) => [t, WECHSELSEK]);
+    const neu = tafeln.map((t) => [t, t === 'duelle' ? DUELLE_SEK : STATISTIK_SEK]);
     if (JSON.stringify(neu) !== JSON.stringify(ablauf)) {
       ablauf = neu;
       ablaufPos = 0;
@@ -1030,12 +1101,15 @@ function renderTafeln() {
       const NAMEN = { duelle: 'DIE DUELLE', statistik: 'TEAM-STATISTIK' };
       const naechste = ablauf[(ablaufPos + 1) % ablauf.length][0];
       const rest = Math.max(0, Math.ceil(ablauf[ablaufPos][1] - vergangen));
-      wtext.innerHTML = 'GLEICH: <b>' + NAMEN[naechste] + '</b> &middot; ' + rest + ' s';
+      // Bei drei Minuten Standzeit ist ein Countdown ab 180 nur Unruhe –
+      // die Ansage kommt erst, wenn der Wechsel wirklich bevorsteht.
+      wtext.innerHTML = rest > 30 ? ''
+        : 'GLEICH: <b>' + NAMEN[naechste] + '</b> &middot; ' + rest + ' s';
     }
   }
 
   zeigeTafel(aktiv);
-  if (aktiv === 'duelle') renderDuelle(S);
+  if (aktiv === 'duelle') { renderDuelle(S); namenEinpassen(); }
   else if (aktiv === 'statistik') renderStatistik(S);
 }
 
