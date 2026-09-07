@@ -316,25 +316,27 @@
     gap: 6px;
   }
 
+  /* Die Satzzahlen stehen frei, ohne Kachel: Acht ausgefüllte Kästchen je
+     Zeile sahen nach Mauer aus. Was zählt, ist ohnehin die Zahl – der
+     gewonnene Satz bekommt nur einen Strich in der Teamfarbe darunter. */
   .du__satz {
     width: 74px;
     text-align: center;
-    padding: 8px 0;
-    background: rgba(255, 255, 255, .05);
+    padding: 6px 0 9px;
+    border-bottom: 5px solid transparent;
     font-family: 'Oswald', sans-serif;
     font-size: 34px;
     line-height: 1.2;
     color: #93A5C6;
     white-space: nowrap;
   }
-  /* Gewonnener Satz: ausgefüllt in der Teamfarbe. Gold heißt "läuft
-     gerade" – zwei Bedeutungen, zwei Farben, damit nichts durcheinander
-     geht. */
+  /* Gewonnener Satz: Strich in der Teamfarbe. Gold heißt "läuft gerade" –
+     zwei Bedeutungen, zwei Farben, damit nichts durcheinander geht. */
   .du__satz--sieg { color: #FFFFFF; font-weight: 700; }
-  .du__satz--sieg.du__satz--heim { background: var(--heim); }
-  .du__satz--sieg.du__satz--gast { background: var(--gast); }
-  .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
-  .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
+  .du__satz--sieg.du__satz--heim { border-bottom-color: var(--heim); }
+  .du__satz--sieg.du__satz--gast { border-bottom-color: var(--gast); }
+  .du__satz--leer { color: rgba(255, 255, 255, .14); }
+  .du__satz--live { color: var(--gold); border-bottom-color: rgba(232, 178, 26, .55); }
 
   /* Satzpunkte: jede Zahl für sich, die höhere in der Teamfarbe. Das ist
      der Stand des Duells – er soll so deutlich sein wie die Sätze. */

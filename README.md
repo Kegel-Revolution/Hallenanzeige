@@ -43,12 +43,14 @@ Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 | **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
 
 **Farben sagen, wer wo gewonnen hat** — und zwar nur dort, wo eine Zahl
-steht: Ein gewonnener Satz ist in der Teamfarbe ausgefüllt, ebenso die
-höhere Satzpunktzahl im Duell. Gold heißt immer „läuft gerade": der
-laufende Satz und der Rahmen um die Satzpunkte des laufenden Duells. Zwei
-Bedeutungen, zwei Farben, damit nichts durcheinandergeht. Die Namen und
-die Satzpunkte oben im Kopf bleiben bewusst ohne Farbe — sonst liegt auf
-einer Zeile mehr Farbe als Information.
+steht: Der gewonnene Satz bekommt einen Strich in der Teamfarbe unter der
+Zahl, die höhere Satzpunktzahl im Duell steht ausgefüllt. Die Satzzahlen
+selbst stehen frei, ohne Kachel — acht ausgefüllte Kästchen je Zeile sahen
+nach Mauer aus. Gold heißt immer „läuft gerade": der laufende Satz und der
+Rahmen um die Satzpunkte des laufenden Duells. Zwei Bedeutungen, zwei
+Farben, damit nichts durcheinandergeht. Die Namen und die Satzpunkte oben
+im Kopf bleiben bewusst ohne Farbe — sonst liegt auf einer Zeile mehr
+Farbe als Information.
 
 **Die Namen** stehen am äußeren Rand der Zeile, deutlich abgesetzt von den
 Satzzahlen — vorher klebten sie daran, und aus zehn Metern war nicht zu
