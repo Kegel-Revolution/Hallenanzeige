@@ -43,17 +43,20 @@ Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 | **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
 
 **Farben sagen, wer wo gewonnen hat.** Ein gewonnener Satz steht
-ausgefüllt in der Teamfarbe, ebenso die höhere Satzpunktzahl und der Name
-des Duellsiegers. Gold heißt immer „läuft gerade" — der laufende Satz und
-der Rahmen um die Satzpunkte des laufenden Duells. Zwei Bedeutungen, zwei
-Farben, damit nichts durcheinandergeht.
+ausgefüllt in der Teamfarbe, ebenso die höhere Satzpunktzahl. Der
+Duellsieger bekommt einen kräftigen Strich in der Teamfarbe unter den
+Namen — eine ausgefüllte Fläche war zwar deutlich, sah neben den ohnehin
+farbigen Satzfeldern aber nach Klotz aus. Gold heißt immer „läuft gerade":
+der laufende Satz und der Rahmen um die Satzpunkte des laufenden Duells.
+Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
 
 **Die Namen** stehen am äußeren Rand der Zeile, mit einem Balken in der
 Teamfarbe davor — vorher klebten sie an den Satzzahlen, und aus zehn
 Metern war nicht zu erkennen, wo der Name aufhört und die Zahlen anfangen.
-Geschrieben wird **Nachname + Anfangsbuchstabe** („Pointinger J."):
-ausgeschrieben passen die Namen neben acht Satzzahlen nicht, und groß
-sollen sie sein.
+Sie stehen **ausgeschrieben** und so groß wie möglich: 44 px, und wenn ein
+besonders langer Name das Feld sprengt, geht nur diese eine Zeile in
+Zweierschritten herunter, bis er passt (bis 24 px). Eine feste Größe für
+den längsten Namen würde bei allen anderen die halbe Höhe verschenken.
 
 Vor dem ersten Wurf steht die Startaufstellung, nach dem Spiel der
 Endstand. Bricht die Verbindung ab, bleibt der letzte Stand stehen und

@@ -289,32 +289,37 @@
     line-height: 1.15;
     color: #B8C6E0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    padding: 5px 12px;
+    padding: 5px 10px;
     max-width: 100%;
   }
   .du__name--heim {
     justify-self: start;
     text-align: left;
     border-left: 7px solid var(--heim);
-    margin-right: 22px;
+    margin-right: 16px;
   }
   .du__name--gast {
     justify-self: end;
     text-align: right;
     border-right: 7px solid var(--gast);
-    margin-left: 22px;
+    margin-left: 16px;
   }
   .du__name.laeuft { color: #FFFFFF; }
+  /* Der Duellsieger bekommt einen kräftigen Strich in der Teamfarbe unter
+     den Namen. Eine ausgefüllte Fläche war zwar deutlich, sah neben den
+     ohnehin farbigen Satzfeldern aber nach Klotz aus – zu viel Farbe auf
+     einer Zeile. Der Strich liegt innen (box-shadow), er folgt also der
+     Textbreite und nicht der Spalte. */
   .du__name.sieger { color: #FFFFFF; font-weight: 600; }
-  .du__name--heim.sieger { background: var(--heim); }
-  .du__name--gast.sieger { background: var(--gast); }
+  .du__name--heim.sieger { box-shadow: inset 0 -6px 0 var(--heim); border-left-width: 11px; }
+  .du__name--gast.sieger { box-shadow: inset 0 -6px 0 var(--gast); border-right-width: 11px; }
 
   /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
   .du__holz {
-    min-width: 100px;
+    min-width: 92px;
     text-align: center;
     font-family: 'Oswald', sans-serif;
-    font-size: 40px;
+    font-size: 38px;
     line-height: 1.1;
     color: #FFFFFF;
     white-space: nowrap;
@@ -331,12 +336,12 @@
   }
 
   .du__satz {
-    width: 84px;
+    width: 74px;
     text-align: center;
     padding: 8px 0;
     background: rgba(255, 255, 255, .05);
     font-family: 'Oswald', sans-serif;
-    font-size: 36px;
+    font-size: 34px;
     line-height: 1.2;
     color: #93A5C6;
     white-space: nowrap;
@@ -353,8 +358,8 @@
   /* Satzpunkte: jede Zahl für sich, die höhere in der Teamfarbe. Das ist
      der Stand des Duells – er soll so deutlich sein wie die Sätze. */
   .du__sp {
-    width: 118px;
-    margin: 0 8px;
+    width: 108px;
+    margin: 0 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -834,27 +839,6 @@ function renderDuelle(s) {
   const dgs = Math.min(3, Math.max(1,
     Math.round(num((s.wettkampf || {}).anzDurchgaenge) / sjd) || 3));
   const plaetze = Math.max(dgs * 2, ...Object.keys(proPos).map(Number));
-  /**
-   * Anzeigename: Nachname voll, Vorname als Buchstabe ("Pointinger J.").
-   * Ausgeschrieben passen die Namen neben acht Satzzahlen nicht – und
-   * gross sollen sie sein. CC2 liefert "Nachname Vorname"; die Bridge hat
-   * beides ohnehin schon getrennt (spieler[].nachname / .vorname), darauf
-   * verlassen wir uns. Nur wenn der Platz nicht in der Aufstellung steht,
-   * wird selbst getrennt.
-   */
-  const kurzName = (team, pos, voll) => {
-    for (const p of (team && team.spieler) || []) {
-      if (num(p.pos) !== pos) continue;
-      const nach = String(p.nachname || '').trim();
-      const vor = String(p.vorname || '').trim();
-      if (nach) return vor ? nach + ' ' + vor.charAt(0) + '.' : nach;
-      break;
-    }
-    const teile = String(voll || '').trim().split(/\s+/).filter(Boolean);
-    if (teile.length < 2) return teile[0] || '';
-    return teile[0] + ' ' + teile[1].charAt(0) + '.';
-  };
-
   const nameAufPos = (team, pos) => {
     for (const p of (team && team.spieler) || []) {
       if (num(p.pos) === pos) return p.name || '';
@@ -932,7 +916,7 @@ function renderDuelle(s) {
     const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
     html +=
       '<div class="' + zeileKl + '">' +
-      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(kurzName(teams[0], num(d.pos), d.heim) || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
       '<span class="du__mitte">' +
       heimSaetze +
       '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
@@ -940,7 +924,7 @@ function renderDuelle(s) {
       '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       gastSaetze +
       '</span>' +
-      '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(kurzName(teams[1], num(d.pos), d.gast) || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;
@@ -1059,6 +1043,31 @@ function renderKopf(s) {
   setText($('stand'), s.zeit ? 'Stand ' + s.zeit : '');
 }
 
+/**
+ * Namen so groß wie möglich – aber immer vollständig.
+ *
+ * Ausgeschrieben sind die Namen sehr verschieden lang: "Funk Lukas" hat
+ * zehn Zeichen, "Pointinger Juergen" achtzehn. Eine Schriftgröße, die für
+ * den längsten reicht, verschenkt bei allen anderen die halbe Höhe.
+ * Deshalb bekommt jede Zeile die größte Schrift, mit der ihr Name noch in
+ * die Spalte passt: Start bei NAME_MAX, herunter in Zweierschritten bis
+ * NAME_MIN. Abgeschnitten wird nur, wenn selbst NAME_MIN nicht reicht.
+ */
+const NAME_MAX = 44;
+const NAME_MIN = 24;
+
+function namenEinpassen() {
+  for (const el of document.querySelectorAll('.du__name')) {
+    let groesse = NAME_MAX;
+    el.style.fontSize = groesse + 'px';
+    // scrollWidth > clientWidth heißt: der Text ist breiter als das Feld.
+    while (groesse > NAME_MIN && el.scrollWidth > el.clientWidth) {
+      groesse -= 2;
+      el.style.fontSize = groesse + 'px';
+    }
+  }
+}
+
 /* ---------------------------------------------------------- Tafel-Wechsel */
 
 let S = null;             // letzter Spielstand
@@ -1147,7 +1156,7 @@ function renderTafeln() {
   }
 
   zeigeTafel(aktiv);
-  if (aktiv === 'duelle') renderDuelle(S);
+  if (aktiv === 'duelle') { renderDuelle(S); namenEinpassen(); }
   else if (aktiv === 'statistik') renderStatistik(S);
 }
 
