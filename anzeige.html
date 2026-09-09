@@ -51,26 +51,129 @@
     font-weight: 400 700; font-style: normal; font-display: swap;
   }
 
+  /* ================================================================
+     Farbwege: Bundesliga (Navy/Gold) und Pauly DKBC Pokal.
+
+     Umgeschaltet wird über zwei Attribute am <html>-Element – genau wie
+     im Stream-Overlay (dort public/design.css):
+
+       data-design    "bundesliga" (Vorgabe) | "pokal"
+       data-variante  nur beim Pokal: "navy" (Vorgabe) | "graphit"
+
+     Gesetzt werden sie aus dem Spielstand, siehe wettbewerbBestimmen()
+     weiter unten. Ohne Attribut gilt die Bundesliga: Ein unbekannter
+     Wert darf nie dazu führen, dass die Tafel ungestylt in der Halle
+     hängt – lieber das gewohnte Design als gar keins.
+
+     Die Namen sind dieselben wie im Overlay (--akzent, --grund…, --ton…),
+     damit "welche Farbe hat der Pokal" genau eine Antwort hat. Darunter
+     stehen die gewachsenen Namen dieser Datei als Verweise, damit die
+     Regeln unten unverändert bleiben.
+
+     Das RGB-Tripel neben dem Hex-Wert (--akzent-rgb) braucht es für die
+     halbtransparenten Flächen: rgba() nimmt keine Hex-Variable.
+     ================================================================ */
+
   :root {
-    /* Farbwelt des Stream-Overlays */
-    --navy: #0A1733;
-    --gold: #E8B21A;
-    --rot: #E5202B;
-    --blau1: #C7D2E8;   /* helle Zeilen */
-    --blau2: #9FB0CE;   /* Beschriftungen */
-    --blau3: #8FA2C4;   /* Nebenwerte */
-    --blau4: #7183A6;   /* gedämpft (kommende Duelle) */
-    --blau5: #5B6E93;   /* Doppelpunkte */
+    /* ---------- Bundesliga · Navy/Gold ---------- */
+    --akzent: #E8B21A;
+    --akzent-rgb: 232, 178, 26;
+    --akzent-schrift: #0A1733;
+
+    --grund: #0A1733;
+    --grund-hoch: #12295A;
+    --grund-mitte: #081226;
+    --grund-tief: #060D1D;
+    --flaeche-rgb: 8, 17, 40;   /* Kopf- und Tafelflächen, halbtransparent */
+
+    --ton-hell: #C7D2E8;        /* helle Zeilen */
+    --ton-name: #B8C6E0;        /* Spielernamen */
+    --ton-mittel: #9FB0CE;      /* Beschriftungen */
+    --ton-matt: #93A5C6;        /* Satzzahlen */
+    --ton-leise: #8FA2C4;       /* Nebenwerte */
+    --ton-still: #7183A6;       /* gedämpft (kommende Duelle) */
+    --ton-tief: #5B6E93;        /* Doppelpunkte */
+
+    --laeuft: #E8B21A;          /* "läuft gerade" (laufender Satz/Duell) */
+    --laeuft-rgb: 232, 178, 26;
+    --signal: #E5202B;          /* Verbindungswarnung */
+
     --linie: rgba(255, 255, 255, .08);
+
+    /* Bisherige Namen dieser Datei – zeigen auf den Farbweg */
+    --navy: var(--grund);
+    --gold: var(--akzent);
+    --rot: var(--signal);
+    --blau1: var(--ton-hell);
+    --blau2: var(--ton-mittel);
+    --blau3: var(--ton-leise);
+    --blau4: var(--ton-still);
+    --blau5: var(--ton-tief);
+
     /* Teamfarben – per ?heim=/?gast= übersteuerbar */
     --heim: #2563BC; --heim-dunkel: #163E77;
     --gast: #D8232E; --gast-dunkel: #82151C;
   }
 
+  /* ---------- Pauly DKBC Pokal · Navy/Rot ----------
+     Derselbe dunkelblaue Grund, aber Rot statt Gold. Auf dem kräftigen
+     Rot muss die Schrift weiß werden; dunkles Navy wäre dort nicht mehr
+     zu lesen. */
+  :root[data-design="pokal"] {
+    --akzent: #E2001A;
+    --akzent-rgb: 226, 0, 26;
+    --akzent-schrift: #FFFFFF;
+
+    --grund: #0A1433;
+    --grund-hoch: #12275C;
+    --grund-mitte: #0B1B3C;
+    --grund-tief: #070C1C;
+    --flaeche-rgb: 9, 20, 44;
+
+    --ton-still: #6B7EA6;
+
+    /* "Läuft gerade" bleibt hier NICHT beim Akzent. Der ist im Pokal Rot
+       – und eine Gastmannschaft spielt sehr oft in Rot. Ein rotes Feld
+       hieße dann gleichzeitig "Satz gewonnen" und "Satz läuft", und aus
+       zehn Metern ist das nicht zu trennen. Gelb ist die zweite Farbe des
+       Pokals (siehe Variante Graphit/Gelb) – also keine erfundene Farbe,
+       sondern eine, die zum Wettbewerb gehört. */
+    --laeuft: #FFC300;
+    --laeuft-rgb: 255, 195, 0;
+  }
+
+  /* ---------- Pauly DKBC Pokal · Graphit/Gelb ----------
+     Anthrazit statt Blau, Gelb statt Rot. Die Blaugrautöne der Schrift
+     wandern mit: ein blaustichiges Grau auf Anthrazit sieht nach Fehler
+     aus, nicht nach Absicht. */
+  :root[data-design="pokal"][data-variante="graphit"] {
+    --akzent: #FFC300;
+    --akzent-rgb: 255, 195, 0;
+    --akzent-schrift: #141620;
+
+    --grund: #14161F;
+    --grund-hoch: #2A2E3B;
+    --grund-mitte: #171A23;
+    --grund-tief: #0F1116;
+    --flaeche-rgb: 20, 22, 31;
+
+    --ton-hell: #D6D9E2;
+    --ton-name: #C3C6D0;
+    --ton-mittel: #9B9FAF;
+    --ton-matt: #8E92A2;
+    --ton-leise: #7C8091;
+    --ton-still: #6D7284;
+    --ton-tief: #6D7284;
+
+    /* Hier ist der Akzent selbst gelb; ein zweiter Gelbton wäre sinnlos. */
+    --laeuft: #FFC300;
+    --laeuft-rgb: 255, 195, 0;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; }
   body {
-    background: #060D1D;
+    background: var(--grund-tief);
     font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
     color: #FFFFFF;
     font-variant-numeric: tabular-nums;
@@ -92,7 +195,7 @@
       repeating-linear-gradient(115deg,
         rgba(255, 255, 255, .025) 0px, rgba(255, 255, 255, .025) 2px,
         transparent 2px, transparent 110px),
-      linear-gradient(160deg, #12295A 0%, #081226 62%, #060D1D 100%);
+      linear-gradient(160deg, var(--grund-hoch) 0%, var(--grund-mitte) 62%, var(--grund-tief) 100%);
   }
 
   /* ================================================================
@@ -108,7 +211,7 @@
   }
 
   #liga {
-    background: rgba(8, 17, 40, .88);
+    background: rgba(var(--flaeche-rgb), .88);
     padding: 10px 18px;
     font-weight: 600;
     font-size: 21px;
@@ -121,9 +224,16 @@
 
   #kopf-rechts { display: flex; align-items: center; gap: 14px; }
 
+  /* Wettbewerbs-Zeichen: steht nur im Pokal im Bild. Das Logo bringt
+     seine eigene helle Fläche mit (die Datei ist freigestellt, die weiße
+     Platte gehört zur Grafik) – deshalb kein Rahmen und kein Hintergrund
+     von uns. */
+  #wb-logo { display: flex; align-items: center; }
+  #wb-logo img { display: block; height: 72px; width: auto; }
+
   /* Groß genug, um sie von der Bahn aus zu lesen */
   #uhr {
-    background: rgba(8, 17, 40, .88);
+    background: rgba(var(--flaeche-rgb), .88);
     padding: 8px 22px;
     font-family: 'Oswald', sans-serif;
     font-weight: 600;
@@ -277,7 +387,7 @@
     font-family: 'Oswald', sans-serif;
     font-size: 44px;
     line-height: 1.15;
-    color: #B8C6E0;
+    color: var(--ton-name);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     padding: 5px 10px;
     max-width: 100%;
@@ -324,7 +434,7 @@
     font-family: 'Oswald', sans-serif;
     font-size: 34px;
     line-height: 1.2;
-    color: #93A5C6;
+    color: var(--ton-matt);
     white-space: nowrap;
   }
   /* Gewonnener Satz: ausgefüllt in der Teamfarbe. Gold heißt "läuft
@@ -334,7 +444,7 @@
   .du__satz--sieg.du__satz--heim { background: var(--heim); }
   .du__satz--sieg.du__satz--gast { background: var(--gast); }
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
-  .du__satz--live { background: rgba(232, 178, 26, .16); color: var(--gold); }
+  .du__satz--live { background: rgba(var(--laeuft-rgb), .16); color: var(--laeuft); }
 
   /* Satzpunkte des Duells – die Mitte der Zeile. Ein ruhiges Feld, kein
      Farbträger: Die Farbe liegt links und rechts an den Satzfeldern, und
@@ -353,11 +463,25 @@
     padding: 7px 0;
     white-space: nowrap;
   }
-  .du__sp--live { color: var(--navy); background: var(--gold); }
+  .du__sp--live { color: var(--grund); background: var(--laeuft); }
   .du__zeile--kommend .du__name { color: var(--blau4); font-weight: 400; }
   .du__zeile--kommend .du__sp { font-weight: 600; font-size: 24px; color: var(--blau4); }
 
-  .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--blau4); }
+  .tafel__fuss { margin-top: 14px; font-size: 18px; color: var(--ton-still); }
+
+  /* Wer weiter ist, ist im K.-o. die einzige Zahl, die zählt – und sie
+     steht in keiner Spalte. Deshalb bekommt diese eine Zeile die Größe
+     und die Akzentfarbe des Wettbewerbs, während die Regel-Zeile während
+     des Spiels leise bleibt. */
+  .tafel__fuss--sieger {
+    margin-top: 12px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 32px;
+    letter-spacing: .04em;
+    color: var(--akzent);
+    text-transform: uppercase;
+  }
 
   /* ---------- Tafel STATISTIK (Stil des Pausen-Screens 1G) ----------
      Ohne Team-Kästen: Wer links und rechts ist, steht schon groß im
@@ -479,6 +603,7 @@
   <header id="kopf">
     <div id="liga"></div>
     <div id="kopf-rechts">
+      <div id="wb-logo" hidden><img src="dkbc-pokal.png" alt="Pauly DKBC Pokal"></div>
       <div id="uhr">--:--</div>
     </div>
   </header>
@@ -643,9 +768,15 @@ function farbenAnwenden() {
 }
 
 /**
- * Farben vom Stream-Rechner holen (/api/farben des Overlay-Servers). Der
- * läuft auf einem anderen Rechner und ist nicht immer an – Fehler sind
- * deshalb kein Drama, dann gilt die Vereinsliste.
+ * Farben UND Wettbewerb vom Stream-Rechner holen (/api/farben des
+ * Overlay-Servers). Der läuft auf einem anderen Rechner und ist nicht
+ * immer an – Fehler sind deshalb kein Drama, dann gilt die Vereinsliste
+ * und die Erkennung am Spielstand.
+ *
+ * Der Wettbewerb kommt von dort, weil die Regie ihn am Stream-PC ohnehin
+ * einstellt: So hängen Halle und Stream nie in verschiedenen Designs, und
+ * die Runde ("VIERTELFINALE") steht überhaupt nur dort – ein Bahn-Rechner
+ * kennt sie nicht.
  */
 function holeOverlayFarben() {
   if (!OVERLAY) return;
@@ -654,7 +785,14 @@ function holeOverlayFarben() {
     .then((d) => {
       if (!d) return;
       vomOverlay = { heim: hexOderLeer(d.heim), gast: hexOderLeer(d.gast) };
+      vomOverlayWb = {
+        wettbewerb: einerVon(WETTBEWERBE, d.wettbewerb),
+        variante: einerVon(VARIANTEN, d.variante),
+        runde: String((d.pokal || {}).runde || ''),
+        weiterIn: String((d.pokal || {}).weiterIn || '')
+      };
       farbenAnwenden();
+      if (S) { designAnwenden(S); renderKopf(S); renderTafeln(); }
     })
     .catch(() => {});
 }
@@ -664,6 +802,82 @@ if (OVERLAY) {
   holeOverlayFarben();
   setInterval(holeOverlayFarben, 15000);
 }
+
+/* ------------------------------------------------ Wettbewerb (Farbweg)
+ *
+ * Bundesliga oder Pauly DKBC Pokal? Bestimmt wird das in derselben
+ * Reihenfolge wie die Teamfarben:
+ *
+ *   ?wettbewerb=pokal|bundesliga  von Hand festgelegt (schlägt alles)
+ *   ?overlay=<IP>:4750            was die Regie am Stream-PC eingestellt
+ *                                 hat – samt Runde ("VIERTELFINALE")
+ *   Spielstand                    "Pokal" in Spielklasse, Bezeichnung
+ *                                 oder Altersklasse des Wettkampfs
+ *   sonst                         Bundesliga
+ *
+ * Die Erkennung am Spielstand ist absichtlich weit gefasst: Den Namen des
+ * Wettkampfs tippt jemand in CC2 von Hand, und niemand weiß vorher, ob
+ * dort "DKBC-Pokal", "Pokal 2026" oder "Pokalrunde 1" steht. Ein Treffer
+ * zu viel ist besser als eine Tafel, die im Pokal aussieht wie ein
+ * Ligaspiel; liegt sie doch falsch, stellt ?wettbewerb= es fest.
+ *
+ * Die Variante (Navy/Rot oder Graphit/Gelb) kann kein Bahn-Rechner
+ * wissen – die kommt vom Stream-PC oder per ?variante=.
+ */
+
+const WETTBEWERBE = ['bundesliga', 'pokal'];
+const VARIANTEN = ['navy', 'graphit'];
+
+function einerVon(liste, wert) {
+  const w = String(wert || '').toLowerCase();
+  return liste.indexOf(w) >= 0 ? w : '';
+}
+
+const WB_FEST = einerVon(WETTBEWERBE, P.get('wettbewerb'));
+const VARIANTE_FEST = einerVon(VARIANTEN, P.get('variante'));
+
+let vomOverlayWb = { wettbewerb: '', variante: '', runde: '', weiterIn: '' };
+let wbJetzt = { wettbewerb: '', variante: '' };
+
+/** Steht im Wettkampf-Namen etwas von Pokal? */
+function pokalErkannt(s) {
+  const wk = (s && s.wettkampf) || {};
+  const text = [wk.liga, wk.bezeichnung, wk.altersklasse]
+    .map((t) => String(t || '')).join(' ').toLowerCase();
+  return /pokal|cup/.test(text);
+}
+
+/** Welcher Farbweg gilt für diesen Spielstand? */
+function wettbewerbBestimmen(s) {
+  const wettbewerb = WB_FEST || vomOverlayWb.wettbewerb ||
+    (pokalErkannt(s) ? 'pokal' : 'bundesliga');
+  const variante = VARIANTE_FEST || vomOverlayWb.variante || 'navy';
+  return { wettbewerb, variante };
+}
+
+/** Die Runde, die in der Tafel stehen soll ('' = keine bekannt). */
+function pokalRunde() {
+  return String(vomOverlayWb.runde || '').trim();
+}
+
+/**
+ * Farbweg auf das <html>-Element schreiben – dieselben zwei Attribute wie
+ * im Stream-Overlay. Nur bei echter Änderung, damit nicht jede Sekunde
+ * das halbe Stylesheet neu gerechnet wird.
+ */
+function designAnwenden(s) {
+  const d = wettbewerbBestimmen(s);
+  if (d.wettbewerb === wbJetzt.wettbewerb && d.variante === wbJetzt.variante) return;
+  wbJetzt = d;
+  const el = document.documentElement;
+  el.setAttribute('data-design', d.wettbewerb);
+  // Die Variante gehört nur zum Pokal. In der Liga wird sie entfernt,
+  // damit im Inspektor nicht "graphit" steht, wo Gold zu sehen ist.
+  if (d.wettbewerb === 'pokal') el.setAttribute('data-variante', d.variante);
+  else el.removeAttribute('data-variante');
+}
+
+designAnwenden(null);
 
 /* ---------------------------------------------------------- Helfer */
 
@@ -679,6 +893,64 @@ function fmtSp(v) {
 
 function setText(el, text) {
   if (el.textContent !== String(text)) el.textContent = text;
+}
+
+/* ------------------------------------------------- Wertung des Pokals
+ *
+ * Gerechnet werden die Mannschaftspunkte in Liga und Pokal GLEICH
+ * (6 Duelle + 2 für das bessere Gesamtholz), gewertet werden sie
+ * unterschiedlich: Ab 4,5 Punkten ist eine Mannschaft weiter, bei 4:4
+ * entscheidet das Gesamtholz, und bei 4:4 mit exakt gleichem Holz gibt es
+ * ein Stechen.
+ *
+ * Dieselbe Regel steht im Stream-Overlay in einer eigenen, geprüften
+ * Datei (public/overlay/scenes/pokal-regeln.js samt tools/pokal.test.js).
+ * Ändert sich die Regel, muss sie an BEIDEN Stellen geändert werden – die
+ * Hallenanzeige läuft eigenständig gegen den Bahn-Rechner und kann keine
+ * Datei aus dem Overlay laden.
+ */
+
+const POKAL_SIEGPUNKTE = 4.5;
+
+function pokalEntscheidung(punkte, holzHeim, holzGast) {
+  const h = num(punkte && punkte.heim);
+  const g = num(punkte && punkte.gast);
+  if (h >= POKAL_SIEGPUNKTE) return { sieger: 'heim', stechen: false };
+  if (g >= POKAL_SIEGPUNKTE) return { sieger: 'gast', stechen: false };
+  if (num(holzHeim) > num(holzGast)) return { sieger: 'heim', stechen: false };
+  if (num(holzGast) > num(holzHeim)) return { sieger: 'gast', stechen: false };
+  return { sieger: null, stechen: true };
+}
+
+/** Läuft gerade ein Pokalspiel? (Farbweg ist schon bestimmt.) */
+function istPokal() {
+  return wbJetzt.wettbewerb === 'pokal';
+}
+
+/**
+ * Die Zeile unter der Duell-Tafel. In der Liga sagt sie, wie die
+ * Mannschaftspunkte zustande kommen; im Pokal zusätzlich, was sie
+ * bedeuten – und am Ende, wer weiter ist. Das ist im K.-o. die einzige
+ * Zahl, die zählt, und sie steht in keiner Spalte.
+ */
+function fussZeile(s) {
+  const basis = 'Duellgewinn = 1 MP · besseres Gesamtholz = 2 MP';
+  if (!istPokal()) return { text: basis, sieger: false };
+  const teams = s.teams || [];
+  const regel = basis + ' · ab 4,5 Punkten weiter';
+  if (!s.matchFertig) return { text: regel, sieger: false };
+  const e = pokalEntscheidung(mannschaftspunkte(s),
+    (teams[0] || {}).gesamt, (teams[1] || {}).gesamt);
+  if (e.stechen) {
+    return { text: 'Punkte und Gesamtholz gleich – das Stechen entscheidet', sieger: true };
+  }
+  const name = String((teams[e.sieger === 'heim' ? 0 : 1] || {}).name || '').trim();
+  if (!name) return { text: regel, sieger: false };
+  const ziel = String(vomOverlayWb.weiterIn || '').trim();
+  return {
+    text: ziel ? name + ' zieht ins ' + ziel + ' ein' : name + ' ist eine Runde weiter',
+    sieger: true
+  };
 }
 
 /* ---------------------------------------------------------- Wertung */
@@ -817,9 +1089,11 @@ function renderDuelle(s) {
 
   const vorSpiel = num(s.wurfAnzahl) === 0;
   setText($('duelle-lbl'), vorSpiel ? 'STARTAUFSTELLUNG' : (s.matchFertig ? 'ENDSTAND — DIE DUELLE' : 'DIE DUELLE'));
-  $('duelle-fuss').textContent = vorSpiel
-    ? 'Noch kein Wurf – die Anzeige startet von selbst'
-    : 'Duellgewinn = 1 MP · besseres Gesamtholz = 2 MP';
+  const fuss = vorSpiel
+    ? { text: 'Noch kein Wurf – die Anzeige startet von selbst', sieger: false }
+    : fussZeile(s);
+  $('duelle-fuss').textContent = fuss.text;
+  $('duelle-fuss').classList.toggle('tafel__fuss--sieger', fuss.sieger);
 
   const live = laufendeSaetze(s);
 
@@ -987,8 +1261,22 @@ function renderKopf(s) {
   uzStand.hidden = !stand;
   setText(uzStand, stand);
 
-  const liga = [wk.liga, wk.spieltag ? wk.spieltag + '. SPIELTAG' : null]
-    .filter(Boolean).join(' · ').toUpperCase();
+  // Links steht in der Liga "Spielklasse · Spieltag", im Pokal die RUNDE
+  // allein – ein K.-o.-Spiel hat keinen Spieltag, und den Namen des
+  // Wettbewerbs trägt daneben das Zeichen. Allein deshalb: Setzt die
+  // Regie den Pokal, während in CC2 noch der Liganame steht, ergäbe
+  // "1. BUNDESLIGA · ACHTELFINALE" sonst Unsinn. Ist keine Runde bekannt
+  // (Stream-PC aus), bleibt die Spielklasse – die sagt im Pokal ohnehin
+  // "Pokal".
+  // Das Zeichen des Wettbewerbs gehört zum Pokal; in der Liga steht dort
+  // nichts (das Vereinslogo hat in der Halle keinen Platz und wäre auf
+  // jedem Bildschirm dasselbe).
+  $('wb-logo').hidden = !istPokal();
+
+  const liga = (istPokal()
+    ? (pokalRunde() || String(wk.liga || ''))
+    : [wk.liga, wk.spieltag ? wk.spieltag + '. SPIELTAG' : '']
+      .filter(Boolean).join(' · ')).toUpperCase();
   setText($('liga'), liga || String(wk.bezeichnung || ''));
 
   const info = [wk.bezeichnung, wk.ort].filter(Boolean).join(' · ');
@@ -1147,6 +1435,7 @@ function render(s) {
     gast: String((teams[1] || {}).name || '')
   };
   farbenAnwenden();
+  designAnwenden(s);
 
   renderKopf(s);
   renderTafeln();
