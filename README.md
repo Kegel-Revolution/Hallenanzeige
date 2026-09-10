@@ -106,6 +106,47 @@ Bahn-PC selbst, vorher in der .bat die Adresse eintragen
 
 An die Adresse anhängen, kombinierbar mit `&`:
 
+### Bundesliga oder DKBC-Pokal — die Tafel merkt es selbst
+
+Im **Pauly DKBC Pokal** trägt die Anzeige das Design des Wettbewerbs:
+DKBC-Rot statt Gold, den etwas dunkleren Grund, das Pokal-Zeichen oben
+rechts und die Runde („VIERTELFINALE") links, wo in der Liga der Spieltag
+steht. Umgestellt wird **nichts von Hand** — bestimmt wird der Wettbewerb
+in derselben Reihenfolge wie die Teamfarben:
+
+| Woher | Was |
+|---|---|
+| `?wettbewerb=pokal` \| `bundesliga` | von Hand festgelegt, schlägt alles |
+| `?overlay=<IP>:4750` | was die Regie am Stream-PC eingestellt hat — samt Runde |
+| Spielstand | steht „Pokal" in Spielklasse, Bezeichnung oder Altersklasse des Wettkampfs |
+| sonst | Bundesliga |
+
+Die Erkennung am Spielstand ist absichtlich weit gefasst: Den Namen des
+Wettkampfs tippt jemand in CC2 von Hand, und niemand weiß vorher, ob dort
+„DKBC-Pokal", „Pokal 2026" oder „Pokalrunde 1" steht — getroffen wird
+alles, was „Pokal" oder „Cup" enthält. Ein Treffer zu viel ist besser als
+eine Tafel, die im Pokal aussieht wie ein Ligaspiel; liegt sie doch
+falsch, stellt `?wettbewerb=` es fest.
+
+Die **Runde** kann kein Bahn-Rechner wissen — die pflegt die Regie im
+Panel des Overlays, und die Halle holt sie über `?overlay=` ab. Ohne
+Stream-PC bleibt links die Spielklasse stehen (die sagt im Pokal ohnehin
+„Pokal"). Dasselbe gilt für die **Farbvariante** des Pokals (Navy/Rot oder
+Graphit/Gelb, per `?variante=` auch von Hand).
+
+**Der Pokal wird anders gewertet.** Gerechnet werden die
+Mannschaftspunkte gleich wie in der Liga (6 Duelle + 2 für das bessere
+Gesamtholz), aber ab **4,5 Punkten** ist eine Mannschaft weiter; bei 4:4
+entscheidet das Gesamtholz, bei 4:4 mit gleichem Holz ein Stechen. Die
+Zeile unter der Duell-Tafel sagt das während des Spiels und nach dem
+letzten Wurf, wer weiter ist — im K.-o. ist das die einzige Zahl, die
+zählt, und sie steht in keiner Spalte.
+
+Ein Hinweis zur Farbe: „Läuft gerade" ist im Pokal **gelb**, nicht rot.
+Der Akzent ist dort Rot, und eine Gastmannschaft spielt sehr oft in Rot —
+ein rotes Feld hieße dann gleichzeitig „Satz gewonnen" und „Satz läuft".
+Gelb ist die zweite Farbe des Pokals, also keine erfundene.
+
 | Parameter | Wirkung |
 |---|---|
 | `?ansicht=aufstellung` \| `statistik` | eine Tafel fest einstellen — so können die Bildschirme Verschiedenes zeigen |
@@ -116,6 +157,8 @@ An die Adresse anhängen, kombinierbar mit `&`:
 | `?heim=2563BC&gast=D8232E` | Teamfarben fest vorgeben (Hex ohne `#`) |
 | `?overlay=192.168.1.60:4750` | Teamfarben vom Stream-Rechner holen, damit Halle und Stream gleich aussehen |
 | `?quelle=192.168.1.50:8080` | Bridge-Adresse, falls die Datei nicht von der Bridge selbst kommt |
+| `?wettbewerb=pokal` \| `bundesliga` | Wettbewerb fest vorgeben (sonst automatisch, siehe oben) |
+| `?variante=navy` \| `graphit` | Farbvariante des Pokals fest vorgeben |
 
 ### Starten: erst Fenster, dann Vollbild
 
