@@ -1016,10 +1016,17 @@ function abraeumWuerfe(wurf, maxWurf) {
 function kennzahlen(s) {
   const teams = s.teams || [];
   const maxWurf = num(((s.bahnen || [])[0] || {}).maxWurf) || 30;
-  // Gespielte Sätze = Summe der vergebenen Satzpunkte (je Satz genau einer)
-  const saetze = (s.duelle || []).reduce(
-    (sum, d) => sum + num(d.satzpunkteHeim) + num(d.satzpunkteGast), 0);
-  const werte = (t) => {
+  // Ø Holz pro Satz nur aus ABGESCHLOSSENEN Sätzen (saetzeHeim/saetzeGast
+  // je Duell): Ein laufender Satz zählte vorher mit seinem halben Holz
+  // beim Gesamtholz, aber noch nicht als Satz – mittendrin stand dann ein
+  // Schnitt von 200. So springt die Zahl nur, wenn ein Satz beendet ist.
+  const fertige = { heim: [], gast: [] };
+  for (const d of s.duelle || []) {
+    for (const v of Array.isArray(d.saetzeHeim) ? d.saetzeHeim : []) fertige.heim.push(num(v));
+    for (const v of Array.isArray(d.saetzeGast) ? d.saetzeGast : []) fertige.gast.push(num(v));
+  }
+  const schnitt = (liste) => (liste.length ? liste.reduce((a, b) => a + b, 0) / liste.length : NaN);
+  const werte = (t, seite) => {
     if (!t) t = {};
     const abraeumen = num(t.abraeumen);
     const abrWuerfe = (t.spieler || []).reduce(
@@ -1032,10 +1039,10 @@ function kennzahlen(s) {
       neuner: num(t.neunen),
       abrBild: bilder > 0 && abrWuerfe > 0 ? abrWuerfe / bilder : NaN,
       satzpunkte: num(t.satzpunkte),
-      holzProSatz: saetze > 0 ? num(t.gesamt) / saetze : NaN
+      holzProSatz: schnitt(fertige[seite])
     };
   };
-  return { heim: werte(teams[0]), gast: werte(teams[1]) };
+  return { heim: werte(teams[0], 'heim'), gast: werte(teams[1], 'gast') };
 }
 
 /* ---------------------------------------------------------- Tafel AUFSTELLUNG */
