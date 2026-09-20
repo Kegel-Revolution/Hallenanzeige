@@ -404,6 +404,17 @@
   }
   .du__name.laeuft { color: #FFFFFF; }
   .du__name.sieger { color: #FFFFFF; font-weight: 600; }
+  /* Einwechslung: unter dem Ersatz klein, wen er ersetzt (Gold wie die
+     Wechsel-Marke im Stream) */
+  .du__ersatz {
+    display: block;
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: .03em;
+    color: var(--gold);
+    margin-top: 2px;
+  }
 
   /* Gesamtholz des Spielers vor den Satzpunkten – Führender in Gold */
   .du__holz {
@@ -1151,10 +1162,31 @@ function renderDuelle(s) {
     else sp = dg + '. DG';
 
     const zeileKl = 'du__zeile' + (begonnen ? '' : ' du__zeile--kommend');
-    const wechsel = d.gewechselt ? ' <span style="color:var(--gold)">&#8644;</span>' : '';
+    // Einwechslung je Seite: Oben steht, wer jetzt spielt (der Ersatz),
+    // darunter klein "⇄ für <Starter>". Die Seite ohne Wechsel bleibt ohne
+    // Zeichen – "gewechselt" gilt für den ganzen Platz, es sähe sonst aus,
+    // als wären beide getauscht. Quelle ist die Wechselliste der Mannschaft
+    // (teams[i].wechsel, aus dem CC2-Eintrag, steht sofort da – auch bevor
+    // der Ersatz seine erste Kugel wirft); fällt sie aus, die beteiligten
+    // Spieler des Platzes (heimSpieler/gastSpieler, ab dem ersten Wurf).
+    const nameHtml = (starter, team, spieler) => {
+      let rein = '';
+      const liste = (team && Array.isArray(team.wechsel)) ? team.wechsel : [];
+      let w = liste.find((x) => x && num(x.raus) === num(d.pos));
+      for (let i = 0; w && i < 2; i++) { // Ersatz selbst ersetzt? Kette folgen
+        rein = String(w.reinName || rein);
+        w = liste.find((x) => x && num(x.raus) === num(w.rein) && String(x.reinName || '') !== rein);
+      }
+      if (!rein) {
+        const ersatz = (Array.isArray(spieler) ? spieler : []).filter((p) => p && p.ersatzspieler).pop();
+        if (ersatz && ersatz.name) rein = String(ersatz.name);
+      }
+      if (!rein) return esc(starter || '–');
+      return esc(rein) + '<small class="du__ersatz">&#8644; für ' + esc(starter || '–') + '</small>';
+    };
     html +=
       '<div class="' + zeileKl + '">' +
-      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.heim || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + nameHtml(d.heim, teams[0], d.heimSpieler) + '</span>' +
       '<span class="du__mitte">' +
       heimSaetze +
       '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
@@ -1162,7 +1194,7 @@ function renderDuelle(s) {
       '<span class="du__holz du__holz--gast' + ((fertig ? siegG : begonnen && hG > hH) ? ' gold' : '') + '">' + (begonnen ? hG : '') + '</span>' +
       gastSaetze +
       '</span>' +
-      '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + esc(d.gast || '–') + wechsel + '</span>' +
+      '<span class="du__name du__name--gast' + (siegG ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + nameHtml(d.gast, teams[1], d.gastSpieler) + '</span>' +
       '</div>';
   }
   $('duelle').innerHTML = html;
