@@ -746,11 +746,19 @@ function farbeVonVerein(name) {
   return treffer ? hexOderLeer(treffer.farbe) : '';
 }
 
-// Fest vorgegeben (?heim/?gast) und Adresse des Stream-Rechners (?overlay=)
+// Fest vorgegeben (?heim/?gast) und Adresse des Stream-Rechners (?overlay=).
+// Ohne ?overlay= wird er gesucht: erst der Rechner, der diese Seite
+// ausliefert (läuft das Overlay auf dem Bahn-PC), dann dieser Rechner
+// selbst (Anzeige auf dem Stream-PC geöffnet). Wer antwortet, bleibt.
 const FEST = { heim: hexOderLeer(P.get('heim')), gast: hexOderLeer(P.get('gast')) };
-const OVERLAY = P.get('overlay')
+let OVERLAY = P.get('overlay')
   ? 'http://' + P.get('overlay').replace(/^[a-z]+:\/\//i, '')
   : '';
+const OVERLAY_KANDIDATEN = OVERLAY ? [] : [
+  location.hostname && location.hostname !== 'localhost' ? 'http://' + location.hostname + ':4750' : '',
+  'http://localhost:4750'
+].filter(Boolean);
+let overlayKandidat = 0;
 
 let vomOverlay = { heim: '', gast: '' };
 let teamNamen = { heim: '', gast: '' };
@@ -790,11 +798,13 @@ function farbenAnwenden() {
  * kennt sie nicht.
  */
 function holeOverlayFarben() {
-  if (!OVERLAY) return;
-  fetch(OVERLAY + '/api/farben')
+  const basis = OVERLAY || OVERLAY_KANDIDATEN[overlayKandidat];
+  if (!basis) return;
+  fetch(basis + '/api/farben')
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => {
-      if (!d) return;
+      if (!d) throw new Error('keine Antwort');
+      if (!OVERLAY) OVERLAY = basis; // gefunden – dabei bleiben
       vomOverlay = { heim: hexOderLeer(d.heim), gast: hexOderLeer(d.gast) };
       vomOverlayWb = {
         wettbewerb: einerVon(WETTBEWERBE, d.wettbewerb),
@@ -805,14 +815,15 @@ function holeOverlayFarben() {
       farbenAnwenden();
       if (S) { designAnwenden(S); renderKopf(S); renderTafeln(); }
     })
-    .catch(() => {});
+    .catch(() => {
+      // Nicht erreichbar: nächsten Kandidaten probieren (nur beim Suchen)
+      if (!OVERLAY && OVERLAY_KANDIDATEN.length) overlayKandidat = (overlayKandidat + 1) % OVERLAY_KANDIDATEN.length;
+    });
 }
 
 farbenAnwenden();
-if (OVERLAY) {
-  holeOverlayFarben();
-  setInterval(holeOverlayFarben, 15000);
-}
+holeOverlayFarben();
+setInterval(holeOverlayFarben, 15000);
 
 /* ------------------------------------------------ Wettbewerb (Farbweg)
  *

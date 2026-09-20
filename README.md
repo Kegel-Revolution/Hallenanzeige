@@ -185,7 +185,13 @@ Reihenfolge:
 2. **Stream-Rechner** — steht `?overlay=<IP>:4750` in der Adresse, fragt die
    Anzeige alle 15 Sekunden `/api/farben` des Overlay-Servers ab und
    übernimmt, was im Stream eingestellt ist. Damit reicht ein Klick im
-   Control-Panel, und Halle wie Stream zeigen dasselbe.
+   Control-Panel, und Halle wie Stream zeigen dasselbe. **Ohne `?overlay=`
+   sucht die Anzeige selbst:** erst den Rechner, der die Seite ausliefert
+   (Port 4750 – läuft das Overlay auf dem Bahn-PC), dann `localhost:4750`
+   (Anzeige auf dem Stream-PC geöffnet). Wer antwortet, bleibt. Läuft das
+   Overlay auf einem dritten Rechner, muss `?overlay=` gesetzt sein – in
+   `START_Anzeige.bat` der Bridge die Zeile `set "OVERLAY=<IP>:4750"`; die
+   IP steht beim Start des Overlays in dessen Fenster („Im Netzwerk: …").
 3. **Vereinsliste** — die Konstante `VEREINE` im Skript von `anzeige.html`
    ordnet dem Vereinsnamen aus CC2 eine Farbe zu (Teilstring, längster
    Treffer gewinnt — genau wie die Wappen im Overlay). Sie ist die Kopie von
