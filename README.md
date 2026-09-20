@@ -39,7 +39,7 @@ Ergebnisse waren gerade dann weg, wenn jemand hinsah.
 
 | Tafel | Standzeit | Inhalt |
 |---|---|---|
-| **Aufstellung** | 180 s | alle Paarungen mit den Satzergebnissen Satz für Satz und den Satzpunkten | Bei einer Einwechslung steht auf der betroffenen Seite der Ersatz groß und darunter klein „⇄ für <Starter>" – nur auf dieser Seite, die andere bleibt ohne Zeichen. Quelle ist die Wechselliste der Mannschaft aus dem Bahn-Rechner (, aus dem CC2-Eintrag), sie steht sofort da; Holz und Sätze bleiben die des Platzes. |
+| **Aufstellung** | 180 s | alle Paarungen mit den Satzergebnissen Satz für Satz und den Satzpunkten. Bei einer Einwechslung steht auf der betroffenen Seite der Ersatz groß und darunter klein „⇄ für <Starter>" – nur auf dieser Seite, die andere bleibt ohne Zeichen. Quelle ist die Wechselliste der Mannschaft aus dem Bahn-Rechner (`teams[i].wechsel`, aus dem CC2-Eintrag), sie steht sofort da; Holz und Sätze bleiben die des Platzes |
 | **Statistik** | 20 s | Team-Vergleich als Balken: Volle, Abräumen, Fehlwürfe, Neuner, Ø Würfe pro Abräumbild, Satzpunkte, Ø Holz pro Satz |
 
 **Farben sagen, wer wo gewonnen hat** — und zwar nur an den Satzzahlen:
