@@ -57,8 +57,15 @@
      Umgeschaltet wird über zwei Attribute am <html>-Element – genau wie
      im Stream-Overlay (dort public/design.css):
 
-       data-design    "bundesliga" (Vorgabe) | "pokal"
+       data-design    "bundesliga" (Vorgabe) | "pokal" | "unterliga"
        data-variante  nur beim Pokal: "navy" (Vorgabe) | "graphit"
+
+     "unterliga" ist der Farbweg der unteren Ligen (Bezirks-, Kreisliga,
+     Kreisklasse, Jugend – CC2-Modus 27: vier Spieler, zwei Durchgänge,
+     Mannschaftspunkte bis 6 : 0): Vereinsblau, ein klares Blau als Akzent,
+     waagrechte Linien statt der Schrägen, rechtwinklig – genau wie das
+     Unterliga-Overlay im Stream. Erkannt wird er am Spiel selbst (vier
+     Plätze), siehe vierSpieler().
 
      Gesetzt werden sie aus dem Spielstand, siehe wettbewerbBestimmen()
      weiter unten. Ohne Attribut gilt die Bundesliga: Ein unbekannter
@@ -169,6 +176,48 @@
     --laeuft: #FFC300;
     --laeuft-rgb: 255, 195, 0;
   }
+
+  /* ---------- Untere Ligen · Vereinsblau ----------
+     Vier Spieler, zwei Durchgänge (CC2-Modus 27). Dieselben Werte wie
+     public/design.css [data-design="unterliga"] im Overlay. */
+  :root[data-design="unterliga"] {
+    --akzent: #3D8BFF;
+    --akzent-rgb: 61, 139, 255;
+    --akzent-schrift: #08121F;
+
+    --grund: #0B1A2B;
+    --grund-hoch: #1B3A5C;
+    --grund-mitte: #0E2136;
+    --grund-tief: #070F1A;
+    --flaeche-rgb: 9, 20, 34;
+
+    --ton-hell: #DCE6F2;
+    --ton-name: #C4D1E1;
+    --ton-mittel: #A3B5CC;
+    --ton-matt: #93A6BF;
+    --ton-leise: #7E93AE;
+    --ton-still: #5A6B84;
+    --ton-tief: #5A6B84;
+
+    --laeuft: #3D8BFF;
+    --laeuft-rgb: 61, 139, 255;
+
+    /* Vorgabe-Teamfarben der unteren Ligen (wie im Overlay) */
+    --heim: #1F6FE0; --heim-dunkel: #123D7B;
+    --gast: #C8322C; --gast-dunkel: #6E1B18;
+  }
+  /* waagrechte Linien statt der Schrägen, sonst dieselbe Bühne */
+  :root[data-design="unterliga"] #stage {
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(255, 255, 255, .04) 0px, rgba(255, 255, 255, .04) 2px,
+        transparent 2px, transparent 44px),
+      linear-gradient(165deg, var(--grund-hoch) 0%, var(--grund-mitte) 56%, var(--grund-tief) 100%);
+  }
+  /* rechtwinklig: eckiger Punkt der Warnung, Chips ohne Rundung */
+  :root[data-design="unterliga"] #warnung i { border-radius: 0; }
+  :root[data-design="unterliga"] .du__satz,
+  :root[data-design="unterliga"] .du__sp { border-radius: 0; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; }
@@ -362,6 +411,29 @@
   }
 
   /* ---------- Tafel AUFSTELLUNG: Paarungen mit Satzergebnissen ---------- */
+
+  /* Vier Spieler (Unterliga-Vorlage U2/U7b): vor dem Heimnamen die Nummer
+     des Duells und die Bahnen ("BAHN 1 / 2"), die Zeilen höher, damit vier
+     Paarungen die Tafel so satt füllen wie sonst sechs. */
+  .vier .du__zeile { padding: 24px 24px; grid-template-columns: 1.35fr auto 1fr; }
+  .vier .du__name { font-size: 40px; }
+  .vier .du__name--heim { display: flex; align-items: center; gap: 14px; }
+  .vier .du__nametext { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  /* die Mitte etwas schmaler, damit der Name neben Nummer und Bahn Platz hat */
+  .vier .du__satz { width: 66px; font-size: 32px; }
+  .vier .du__holz { min-width: 84px; }
+  .du__nr, .du__bahn { display: none; }
+  .vier .du__nr {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; flex-shrink: 0;
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 26px;
+    color: var(--akzent); border: 2px solid rgba(var(--akzent-rgb), .55);
+  }
+  .vier .du__bahn {
+    display: inline-block; flex-shrink: 0;
+    font-family: 'Source Sans 3', sans-serif; font-weight: 700; font-size: 16px;
+    letter-spacing: .14em; color: var(--ton-leise); white-space: nowrap;
+  }
 
   .du__tabelle { display: flex; flex-direction: column; border-bottom: 1px solid var(--linie); }
 
@@ -847,7 +919,7 @@ setInterval(holeOverlayFarben, 15000);
  * wissen – die kommt vom Stream-PC oder per ?variante=.
  */
 
-const WETTBEWERBE = ['bundesliga', 'pokal'];
+const WETTBEWERBE = ['bundesliga', 'pokal', 'unterliga'];
 const VARIANTEN = ['navy', 'graphit'];
 
 function einerVon(liste, wert) {
@@ -869,10 +941,23 @@ function pokalErkannt(s) {
   return /pokal|cup/.test(text);
 }
 
+/**
+ * Vier Spieler je Mannschaft (CC2-Modus 27: acht Sätze zu vier je
+ * Durchgang = zwei Durchgänge, also vier Plätze)? Dann gilt das Bild der
+ * unteren Ligen. Erkannt am Spiel, nicht am Liga-Text – der ist in CC2
+ * frei getippt ("Kreisliga1", "Kreisklasse A", "Bezirksoberliga", …).
+ */
+function vierSpieler(s) {
+  if (!s) return false;
+  const sjd = saetzeJeDurchgang(s);
+  const dgs = Math.round(num((s.wettkampf || {}).anzDurchgaenge) / sjd);
+  return dgs === 2;
+}
+
 /** Welcher Farbweg gilt für diesen Spielstand? */
 function wettbewerbBestimmen(s) {
   const wettbewerb = WB_FEST || vomOverlayWb.wettbewerb ||
-    (pokalErkannt(s) ? 'pokal' : 'bundesliga');
+    (pokalErkannt(s) ? 'pokal' : vierSpieler(s) ? 'unterliga' : 'bundesliga');
   const variante = VARIANTE_FEST || vomOverlayWb.variante || 'navy';
   return { wettbewerb, variante };
 }
@@ -1117,10 +1202,15 @@ function renderDuelle(s) {
   }
 
   const vorSpiel = num(s.wurfAnzahl) === 0;
-  setText($('duelle-lbl'), vorSpiel ? 'STARTAUFSTELLUNG' : (s.matchFertig ? 'ENDSTAND — DIE DUELLE' : 'DIE DUELLE'));
+  const vier = duelle.length === 4 && vierSpieler(s);
+  document.documentElement.classList.toggle('vier', vier);
+  const dieDuelle = vier ? 'DIE VIER DUELLE' : 'DIE DUELLE';
+  setText($('duelle-lbl'), vorSpiel ? 'STARTAUFSTELLUNG' : (s.matchFertig ? 'ENDSTAND — ' + dieDuelle : dieDuelle));
   const fuss = vorSpiel
     ? { text: 'Noch kein Wurf – die Anzeige startet von selbst', sieger: false }
-    : fussZeile(s);
+    : vier
+      ? { text: 'Vier Spieler je Mannschaft · 120 Wurf · Duellgewinn = 1 MP · besseres Gesamtholz = 2 MP · maximal 6 : 0', sieger: false }
+      : fussZeile(s);
   $('duelle-fuss').textContent = fuss.text;
   $('duelle-fuss').classList.toggle('tafel__fuss--sieger', fuss.sieger);
 
@@ -1197,7 +1287,12 @@ function renderDuelle(s) {
     };
     html +=
       '<div class="' + zeileKl + '">' +
-      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' + nameHtml(d.heim, teams[0], d.heimSpieler) + '</span>' +
+      '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' +
+        // Vier Spieler: Nummer und Bahnen wie in der Unterliga-Vorlage
+        // (Duell 1 und 3 beginnen auf Bahn 1/2, Duell 2 und 4 auf 3/4)
+        '<span class="du__nr">' + num(d.pos) + '</span>' +
+        '<span class="du__bahn">' + (num(d.pos) % 2 === 1 ? 'BAHN 1 / 2' : 'BAHN 3 / 4') + '</span>' +
+        '<span class="du__nametext">' + nameHtml(d.heim, teams[0], d.heimSpieler) + '</span></span>' +
       '<span class="du__mitte">' +
       heimSaetze +
       '<span class="du__holz du__holz--heim' + ((fertig ? siegH : begonnen && hH > hG) ? ' gold' : '') + '">' + (begonnen ? hH : '') + '</span>' +
