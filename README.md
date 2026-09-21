@@ -116,10 +116,21 @@ in derselben Reihenfolge wie die Teamfarben:
 
 | Woher | Was |
 |---|---|
-| `?wettbewerb=pokal` \| `bundesliga` | von Hand festgelegt, schlägt alles |
+| `?wettbewerb=pokal` \| `unterliga` \| `bundesliga` | von Hand festgelegt, schlägt alles |
 | `?overlay=<IP>:4750` | was die Regie am Stream-PC eingestellt hat — samt Runde |
-| Spielstand | steht „Pokal" in Spielklasse, Bezeichnung oder Altersklasse des Wettkampfs |
+| Spielstand | steht „Pokal" in Spielklasse, Bezeichnung oder Altersklasse des Wettkampfs → Pokal; spielt das Spiel mit **vier Spielern je Mannschaft** (CC2-Modus 27: acht Sätze, zwei Durchgänge) → untere Ligen |
 | sonst | Bundesliga |
+
+**Untere Ligen (vier Spieler).** Bezirks-, Kreisliga, Kreisklasse und Jugend
+spielen mit vier Spielern, zwei Durchgängen und Mannschaftspunkten bis 6 : 0.
+Die Anzeige erkennt das am Spiel selbst (nicht am frei getippten Liga-Text)
+und trägt dann den Farbweg des Unterliga-Overlays aus dem Stream:
+Vereinsblau, klares Blau als Akzent, waagrechte Linien statt der Schrägen,
+rechtwinklig. Die Tafel heißt „Die vier Duelle", jede Zeile trägt vorn die
+Nummer des Duells, die vier Zeilen stehen höher, und die Fußzeile nennt den
+Modus („Vier Spieler je Mannschaft · 120 Wurf · … · maximal 6 : 0"). Alles
+andere – Satzverlauf, Holz, Satzpunkte, Statistik, Einwechslung – ist wie bei
+sechs Spielern.
 
 Die Erkennung am Spielstand ist absichtlich weit gefasst: Den Namen des
 Wettkampfs tippt jemand in CC2 von Hand, und niemand weiß vorher, ob dort
@@ -157,7 +168,7 @@ Gelb ist die zweite Farbe des Pokals, also keine erfundene.
 | `?heim=2563BC&gast=D8232E` | Teamfarben fest vorgeben (Hex ohne `#`) |
 | `?overlay=192.168.1.60:4750` | Teamfarben vom Stream-Rechner holen, damit Halle und Stream gleich aussehen |
 | `?quelle=192.168.1.50:8080` | Bridge-Adresse, falls die Datei nicht von der Bridge selbst kommt |
-| `?wettbewerb=pokal` \| `bundesliga` | Wettbewerb fest vorgeben (sonst automatisch, siehe oben) |
+| `?wettbewerb=pokal` \| `unterliga` \| `bundesliga` | Wettbewerb fest vorgeben (sonst automatisch, siehe oben) |
 | `?variante=navy` \| `graphit` | Farbvariante des Pokals fest vorgeben |
 
 ### Starten: erst Fenster, dann Vollbild
