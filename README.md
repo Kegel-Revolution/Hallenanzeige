@@ -127,8 +127,7 @@ Die Anzeige erkennt das am Spiel selbst (nicht am frei getippten Liga-Text)
 und trägt dann den Farbweg des Unterliga-Overlays aus dem Stream:
 Vereinsblau, klares Blau als Akzent, waagrechte Linien statt der Schrägen,
 rechtwinklig. Die Tafel heißt „Die vier Duelle", jede Zeile trägt vorn die
-Nummer des Duells und die Bahnen („BAHN 1 / 2" für Duell 1 und 3, „BAHN 3 / 4"
-für 2 und 4), die vier Zeilen stehen höher, und die Fußzeile nennt den
+Nummer des Duells, die vier Zeilen stehen höher, und die Fußzeile nennt den
 Modus („Vier Spieler je Mannschaft · 120 Wurf · … · maximal 6 : 0"). Alles
 andere – Satzverlauf, Holz, Satzpunkte, Statistik, Einwechslung – ist wie bei
 sechs Spielern.

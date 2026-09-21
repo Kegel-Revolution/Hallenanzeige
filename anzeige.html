@@ -413,8 +413,8 @@
   /* ---------- Tafel AUFSTELLUNG: Paarungen mit Satzergebnissen ---------- */
 
   /* Vier Spieler (Unterliga-Vorlage U2/U7b): vor dem Heimnamen die Nummer
-     des Duells und die Bahnen ("BAHN 1 / 2"), die Zeilen höher, damit vier
-     Paarungen die Tafel so satt füllen wie sonst sechs. */
+     des Duells, die Zeilen höher, damit vier Paarungen die Tafel so satt
+     füllen wie sonst sechs. */
   .vier .du__zeile { padding: 24px 24px; grid-template-columns: 1.35fr auto 1fr; }
   .vier .du__name { font-size: 40px; }
   .vier .du__name--heim { display: flex; align-items: center; gap: 14px; }
@@ -422,17 +422,12 @@
   /* die Mitte etwas schmaler, damit der Name neben Nummer und Bahn Platz hat */
   .vier .du__satz { width: 66px; font-size: 32px; }
   .vier .du__holz { min-width: 84px; }
-  .du__nr, .du__bahn { display: none; }
+  .du__nr { display: none; }
   .vier .du__nr {
     display: inline-flex; align-items: center; justify-content: center;
     width: 44px; height: 44px; flex-shrink: 0;
     font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 26px;
     color: var(--akzent); border: 2px solid rgba(var(--akzent-rgb), .55);
-  }
-  .vier .du__bahn {
-    display: inline-block; flex-shrink: 0;
-    font-family: 'Source Sans 3', sans-serif; font-weight: 700; font-size: 16px;
-    letter-spacing: .14em; color: var(--ton-leise); white-space: nowrap;
   }
 
   .du__tabelle { display: flex; flex-direction: column; border-bottom: 1px solid var(--linie); }
@@ -1288,10 +1283,8 @@ function renderDuelle(s) {
     html +=
       '<div class="' + zeileKl + '">' +
       '<span class="du__name du__name--heim' + (siegH ? ' sieger' : begonnen && !fertig ? ' laeuft' : '') + '">' +
-        // Vier Spieler: Nummer und Bahnen wie in der Unterliga-Vorlage
-        // (Duell 1 und 3 beginnen auf Bahn 1/2, Duell 2 und 4 auf 3/4)
+        // Vier Spieler: die Nummer des Duells wie in der Unterliga-Vorlage
         '<span class="du__nr">' + num(d.pos) + '</span>' +
-        '<span class="du__bahn">' + (num(d.pos) % 2 === 1 ? 'BAHN 1 / 2' : 'BAHN 3 / 4') + '</span>' +
         '<span class="du__nametext">' + nameHtml(d.heim, teams[0], d.heimSpieler) + '</span></span>' +
       '<span class="du__mitte">' +
       heimSaetze +
