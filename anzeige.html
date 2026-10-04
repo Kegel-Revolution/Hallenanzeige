@@ -120,6 +120,10 @@
     /* Teamfarben – per ?heim=/?gast= übersteuerbar */
     --heim: #2563BC; --heim-dunkel: #163E77;
     --gast: #D8232E; --gast-dunkel: #82151C;
+    /* Schrift auf der Teamfarbe - setzeFarbe() rechnet sie aus der
+       Helligkeit aus. Hier nur der Startwert fuer das erste Bild. */
+    --heim-schrift: #FFFFFF;
+    --gast-schrift: #FFFFFF;
   }
 
   /* ---------- Pauly DKBC Pokal · Navy/Rot ----------
@@ -542,9 +546,13 @@
   /* Gewonnener Satz: ausgefüllt in der Teamfarbe. Gold heißt "läuft
      gerade" – zwei Bedeutungen, zwei Farben, damit nichts durcheinander
      geht. */
-  .du__satz--sieg { color: #FFFFFF; font-weight: 700; }
-  .du__satz--sieg.du__satz--heim { background: var(--heim); }
-  .du__satz--sieg.du__satz--gast { background: var(--gast); }
+  .du__satz--sieg { font-weight: 700; }
+  /* Die Schrift richtet sich nach der Teamfarbe: Auf Weiss oder Gelb
+     waere Weiss auf Weiss ein leerer Kasten. Welche es wird, rechnet
+     setzeFarbe() aus - nach derselben Schwelle wie das Stream-Overlay,
+     damit Halle und Stream gleich aussehen. */
+  .du__satz--sieg.du__satz--heim { background: var(--heim); color: var(--heim-schrift); }
+  .du__satz--sieg.du__satz--gast { background: var(--gast); color: var(--gast-schrift); }
   .du__satz--leer { background: rgba(255, 255, 255, .025); color: rgba(255, 255, 255, .14); }
   .du__satz--live { background: rgba(var(--laeuft-rgb), .16); color: var(--laeuft); }
 
@@ -861,15 +869,36 @@ let vomOverlay = { heim: '', gast: '' };
 let teamNamen = { heim: '', gast: '' };
 const farbeJetzt = { heim: '', gast: '' };
 
-/** Farbe setzen; die dunkle Variante für die Verläufe wird mitgerechnet. */
+/**
+ * Helligkeit einer Farbe (0 = schwarz, 1 = weiss), nach derselben Formel
+ * wie im Stream-Overlay (common.js, leuchtdichte).
+ */
+function leuchtdichte(hexOhneRaute) {
+  const n = parseInt(hexOhneRaute, 16);
+  const lin = (v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * lin((n >> 16) & 0xff) + 0.7152 * lin((n >> 8) & 0xff) + 0.0722 * lin(n & 0xff);
+}
+
+/**
+ * Farbe setzen; die dunkle Variante für die Verläufe und die Schrift auf
+ * der Farbe werden mitgerechnet.
+ *
+ * Die Schrift ist der Punkt: Ein Verein mit weissem (oder gelbem) Wappen
+ * bekommt im Panel eine helle Teamfarbe - die gewonnenen Sätze standen
+ * dann als weisse Zahlen auf weissem Grund, in der Halle also ein leerer
+ * Kasten. Ab einer Helligkeit von 0,45 wird deshalb dunkel geschrieben;
+ * dieselbe Schwelle wie im Stream-Overlay.
+ */
 function setzeFarbe(name, hex) {
   const h = hexOderLeer(hex).slice(1);
   if (!h) return;
   const dunkel = [0, 2, 4]
     .map((i) => Math.round(parseInt(h.slice(i, i + 2), 16) * 0.55))
     .map((v) => v.toString(16).padStart(2, '0')).join('');
+  const schrift = leuchtdichte(h) > 0.45 ? '#0B1220' : '#FFFFFF';
   document.documentElement.style.setProperty('--' + name, '#' + h);
   document.documentElement.style.setProperty('--' + name + '-dunkel', '#' + dunkel);
+  document.documentElement.style.setProperty('--' + name + '-schrift', schrift);
 }
 
 /** Gültige Farbe je Seite bestimmen und anwenden (nur bei Änderung). */

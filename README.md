@@ -54,6 +54,13 @@ Der gewonnene Satz ist in der Teamfarbe ausgefüllt. Gold heißt immer
 „läuft gerade": der laufende Satz und die Satzpunkte des laufenden Duells.
 Zwei Bedeutungen, zwei Farben, damit nichts durcheinandergeht.
 
+**Die Schrift darauf richtet sich nach der Teamfarbe.** Ein Verein mit
+weißem oder gelbem Wappen bekommt eine helle Teamfarbe – weiße Zahlen
+darauf wären ein leerer Kasten. Ab einer Helligkeit von 0,45 schreibt die
+Anzeige deshalb dunkel (`#0B1220`), darunter weiß; dieselbe Schwelle wie
+im Stream-Overlay, damit Halle und Stream gleich aussehen. Eingestellt
+werden muss dafür nichts.
+
 In der **Mitte der Zeile** steht der Satzpunktstand des Duells in einem
 ruhigen Feld — dort gehört bewusst keine Teamfarbe hin: Die Farbe liegt
 links und rechts an den Satzfeldern, und zwischen den beiden Reihen soll
