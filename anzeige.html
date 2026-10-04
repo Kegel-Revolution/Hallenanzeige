@@ -325,14 +325,38 @@
   .team--heim .team__balken { background: linear-gradient(90deg, var(--heim), var(--heim-dunkel)); }
   .team--gast .team__balken { background: linear-gradient(90deg, var(--gast-dunkel), var(--gast)); }
 
+  /* Gesamtholz und daneben der Abstand zum Gegner - in der Halle soll
+     niemand im Kopf rechnen muessen, wie weit es ist. */
+  .team__holzzeile {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-top: 6px;
+  }
+  .team--gast .team__holzzeile { flex-direction: row-reverse; }
+
   .team__holz {
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
     font-size: 132px;
     line-height: 1;
-    margin-top: 6px;
   }
   .team__holz.vorn { color: var(--gold); }
+
+  /* Vorsprung der fuehrenden Mannschaft, als "+73" im Kasten. Nur dort:
+     Der Rueckstand der anderen Seite ist dieselbe Zahl, und zwei Kaesten
+     nebeneinander erschlagen auf Entfernung den Kopf. Bei Gleichstand
+     steht nichts da. */
+  .team__diff {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 52px;
+    line-height: 1;
+    padding: 6px 16px 8px;
+    color: var(--gold);
+    box-shadow: inset 0 0 0 3px var(--gold);
+    white-space: nowrap;
+  }
 
   .team__label {
     font-weight: 600;
@@ -690,7 +714,10 @@
     <div class="team team--heim">
       <span class="team__name" id="name-heim">–</span>
       <i class="team__balken"></i>
-      <span class="team__holz" id="holz-heim">0</span>
+      <span class="team__holzzeile">
+        <span class="team__holz" id="holz-heim">0</span>
+        <span class="team__diff" id="diff-heim" hidden>+0</span>
+      </span>
       <span class="team__label">GESAMTHOLZ</span>
     </div>
     <div class="mitte">
@@ -702,7 +729,10 @@
     <div class="team team--gast">
       <span class="team__name" id="name-gast">–</span>
       <i class="team__balken"></i>
-      <span class="team__holz" id="holz-gast">0</span>
+      <span class="team__holzzeile">
+        <span class="team__holz" id="holz-gast">0</span>
+        <span class="team__diff" id="diff-gast" hidden>+0</span>
+      </span>
       <span class="team__label">GESAMTHOLZ</span>
     </div>
   </div>
@@ -1360,6 +1390,17 @@ function renderStatistik(s) {
   }
 }
 
+/**
+ * Vorsprung in Kegeln ("+73") - aber nur bei der Mannschaft, die vorne
+ * liegt. Wer hinten liegt oder gleichauf ist, bekommt keinen Kasten.
+ */
+function diffSetzen(el, wert, zeigen) {
+  if (!el) return;
+  const n = num(wert);
+  el.hidden = !zeigen || n <= 0;
+  if (!el.hidden) setText(el, '+' + n);
+}
+
 /* ---------------------------------------------------------- Kopf */
 
 function renderKopf(s) {
@@ -1378,6 +1419,12 @@ function renderKopf(s) {
   setText($('holz-gast'), gg);
   $('holz-heim').classList.toggle('vorn', gh > gg);
   $('holz-gast').classList.toggle('vorn', gg > gh);
+
+  // Kegeldifferenz: nur bei der fuehrenden Mannschaft. Vor dem ersten
+  // Wurf und bei Gleichstand steht nichts da.
+  const diffZeigen = num(s.wurfAnzahl) > 0;
+  diffSetzen($('diff-heim'), gh - gg, diffZeigen);
+  diffSetzen($('diff-gast'), gg - gh, diffZeigen);
 
   // Zwei kurze Zeilen unter den Mannschaftspunkten: Satzpunkte + Spielstand
   const sjd = saetzeJeDurchgang(s);
