@@ -32,6 +32,13 @@ Duell 1 Punkt für den Führenden, 2 Punkte für die Holz-Führung), nach
 Spielende gilt die Rechnung der Bridge. Darunter Satzpunkte und
 Durchgang/Satz.
 
+Neben dem Gesamtholz der **führenden** Mannschaft steht ihr Vorsprung in
+einem goldenen Kasten („+73"). Nur dort: Der Rückstand der anderen Seite
+ist dieselbe Zahl, und zwei Kästen nebeneinander erschlagen auf
+Entfernung den Kopf. Beim Führungswechsel wandert der Kasten auf die
+andere Seite; bei Gleichstand und vor dem ersten Wurf steht keiner da.
+Damit muss in der Halle niemand im Kopf rechnen, wie weit es ist.
+
 Zwei Tafeln wechseln sich automatisch ab — **die Duelle drei Minuten, die
 Statistik zwanzig Sekunden**. Die Ergebnisse sind das, wofür die Leute in
 der Halle hinschauen; vorher standen beide Tafeln gleich lang, und die
