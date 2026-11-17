@@ -120,19 +120,36 @@ Bahn-PC selbst, vorher in der .bat die Adresse eintragen
 
 An die Adresse anhängen, kombinierbar mit `&`:
 
-### Bundesliga oder DKBC-Pokal — die Tafel merkt es selbst
+### Bundesliga, DKBC-Pokal oder Champions League — die Tafel merkt es selbst
 
-Im **Pauly DKBC Pokal** trägt die Anzeige das Design des Wettbewerbs:
-DKBC-Rot statt Gold, den etwas dunkleren Grund, das Pokal-Zeichen oben
-rechts und die Runde („VIERTELFINALE") links, wo in der Liga der Spieltag
-steht. Umgestellt wird **nichts von Hand** — bestimmt wird der Wettbewerb
-in derselben Reihenfolge wie die Teamfarben:
+Im **Pauly DKBC Pokal** trägt die Anzeige das Design des Wettbewerbs, wie
+im Stream: Schwarz/Gold mit einer Kante in Schwarz-Rot-Gold, das helle
+Pokal-Zeichen oben rechts, die Runde („ACHTELFINALE") links, wo in der Liga
+der Spieltag steht, zwei Goldpunkte als Doppelpunkt und unter jedem
+Vereinsnamen der **Erfolgsbalken** bis 4,5 Punkte (Goldmarke bei 4,5; gold,
+sobald die Mannschaft weiter ist).
+
+In der **Ahlborn Champions League**: Sternenhimmel über die ganze Tafel
+(mit gelegentlicher Sternschnuppe), die Raute statt des Doppelpunkts,
+Grün für Führung und „läuft gerade", das CL-Zeichen oben rechts. Im
+**Rückspiel** steht oben in der Mitte live der **Gesamtstand beider
+Spiele** (Punkte, dann Sätze – NBC Ziffer 14 a; das Holz zählt nicht) und
+wer gerade weiter wäre; sobald es nach den sicheren Punkten nicht mehr
+kippen kann, „… IST WEITER". Das Hinspiel kennt kein Bahn-Rechner – es kommt
+aus dem Panel des Overlays über `?overlay=`.
+
+In Pokal und Champions League stehen die **Satzpunkte groß** („SATZPUNKTE"
+klein darüber), dafür entfällt dort die Zeile „1. DURCHGANG · SATZ 1/4" –
+die Satzpunkte entscheiden dort mit und müssen aus jeder Ecke lesbar sein.
+
+Umgestellt wird **nichts von Hand** — bestimmt wird der Wettbewerb in
+derselben Reihenfolge wie die Teamfarben:
 
 | Woher | Was |
 |---|---|
-| `?wettbewerb=pokal` \| `unterliga` \| `bundesliga` | von Hand festgelegt, schlägt alles |
-| `?overlay=<IP>:4750` | was die Regie am Stream-PC eingestellt hat — samt Runde |
-| Spielstand | steht „Pokal" in Spielklasse, Bezeichnung oder Altersklasse des Wettkampfs → Pokal; spielt das Spiel mit **vier Spielern je Mannschaft** (CC2-Modus 27: acht Sätze, zwei Durchgänge) → untere Ligen |
+| `?wettbewerb=pokal` \| `championsleague` \| `unterliga` \| `bundesliga` | von Hand festgelegt, schlägt alles |
+| `?overlay=<IP>:4750` | was die Regie am Stream-PC eingestellt hat — samt Runde und (CL) Hinspiel |
+| Spielstand | steht „Champions" bzw. „Pokal" in Spielklasse, Bezeichnung oder Altersklasse des Wettkampfs → Champions League bzw. Pokal; spielt das Spiel mit **vier Spielern je Mannschaft** (CC2-Modus 27: acht Sätze, zwei Durchgänge) → untere Ligen |
 | sonst | Bundesliga |
 
 **Untere Ligen (vier Spieler).** Bezirks-, Kreisliga, Kreisklasse und Jugend
@@ -162,15 +179,17 @@ Graphit/Gelb, per `?variante=` auch von Hand).
 **Der Pokal wird anders gewertet.** Gerechnet werden die
 Mannschaftspunkte gleich wie in der Liga (6 Duelle + 2 für das bessere
 Gesamtholz), aber ab **4,5 Punkten** ist eine Mannschaft weiter; bei 4:4
-entscheidet das Gesamtholz, bei 4:4 mit gleichem Holz ein Stechen. Die
+entscheiden die **Satzpunkte** (mehr als 12), bei 12:12 ein Stechen (Sudden
+Victory) – das Holz zählt nicht (DKBC SpO Teil C, C 3.5; bis Nov. 2026
+rechnete die Anzeige hier fälschlich mit dem Holz). Trägt die Regie den
+Sieger des Stechens im Overlay ein, nennt die Anzeige ihn. Die
 Zeile unter der Duell-Tafel sagt das während des Spiels und nach dem
 letzten Wurf, wer weiter ist — im K.-o. ist das die einzige Zahl, die
 zählt, und sie steht in keiner Spalte.
 
-Ein Hinweis zur Farbe: „Läuft gerade" ist im Pokal **gelb**, nicht rot.
-Der Akzent ist dort Rot, und eine Gastmannschaft spielt sehr oft in Rot —
-ein rotes Feld hieße dann gleichzeitig „Satz gewonnen" und „Satz läuft".
-Gelb ist die zweite Farbe des Pokals, also keine erfundene.
+Ein Hinweis zur Farbe: „Läuft gerade" ist im Pokal **hellgold**, nie rot –
+eine Gastmannschaft spielt sehr oft in Rot, ein rotes Feld hieße dann
+gleichzeitig „Satz gewonnen" und „Satz läuft".
 
 | Parameter | Wirkung |
 |---|---|

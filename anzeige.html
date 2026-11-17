@@ -131,26 +131,28 @@
      Rot muss die Schrift weiß werden; dunkles Navy wäre dort nicht mehr
      zu lesen. */
   :root[data-design="pokal"] {
-    --akzent: #E2001A;
-    --akzent-rgb: 226, 0, 26;
-    --akzent-schrift: #FFFFFF;
-
-    --grund: #0A1433;
-    --grund-hoch: #12275C;
-    --grund-mitte: #0B1B3C;
-    --grund-tief: #070C1C;
-    --flaeche-rgb: 9, 20, 44;
-
-    --ton-still: #6B7EA6;
-
-    /* "Läuft gerade" bleibt hier NICHT beim Akzent. Der ist im Pokal Rot
-       – und eine Gastmannschaft spielt sehr oft in Rot. Ein rotes Feld
-       hieße dann gleichzeitig "Satz gewonnen" und "Satz läuft", und aus
-       zehn Metern ist das nicht zu trennen. Gelb ist die zweite Farbe des
-       Pokals (siehe Variante Graphit/Gelb) – also keine erfundene Farbe,
-       sondern eine, die zum Wettbewerb gehört. */
-    --laeuft: #FFC300;
-    --laeuft-rgb: 255, 195, 0;
+    /* Schwarz/Gold – wie das Stream-Overlay seit Nov. 2026 (DFB-Pokal-
+       Gefühl). Gold für alles, was mit Weiterkommen zu tun hat. */
+    --akzent: #E8B21A;
+    --akzent-rgb: 232, 178, 26;
+    --akzent-schrift: #0B0B0B;
+    --grund: #111111;
+    --grund-hoch: #262626;
+    --grund-mitte: #151515;
+    --grund-tief: #0A0A0A;
+    --flaeche-rgb: 18, 18, 18;
+    /* neutrale Grautöne statt Blaugrau – auf Schwarz sähe Blau nach Fehler aus */
+    --ton-hell: #EAEAEA;
+    --ton-name: #DADADA;
+    --ton-mittel: #A0A0A0;
+    --ton-matt: #929292;
+    --ton-leise: #808080;
+    --ton-still: #707070;
+    --ton-tief: #6E6E6E;
+    /* "läuft gerade" in hellem Gold – die Gastmannschaft spielt oft in
+       Rot, da darf "läuft" nicht rot sein */
+    --laeuft: #F2C94C;
+    --laeuft-rgb: 242, 201, 76;
   }
 
   /* ---------- Pauly DKBC Pokal · Graphit/Gelb ----------
@@ -181,6 +183,31 @@
     --laeuft-rgb: 255, 195, 0;
   }
 
+  /* ---------- Ahlborn Champions League · Nacht/Cyan-Grün ----------
+     Wie das Stream-Overlay: tiefes Lila, Cyan als Akzent, Grün für
+     Führung und "läuft gerade". Dazu der Sternenhimmel (#sterne) über die
+     ganze Tafel, die Raute statt des Doppelpunkts – die Halle soll
+     Champions-League-Abend sein. */
+  :root[data-design="championsleague"] {
+    --akzent: #12B8F0;
+    --akzent-rgb: 18, 184, 240;
+    --akzent-schrift: #0B0722;
+    --grund: #120C34;
+    --grund-hoch: #2A1F6B;
+    --grund-mitte: #150E3A;
+    --grund-tief: #0B0722;
+    --flaeche-rgb: 18, 12, 52;
+    --ton-hell: #D9D5F2;
+    --ton-name: #CBC5EE;
+    --ton-mittel: #A9A1D8;
+    --ton-matt: #9A92CE;
+    --ton-leise: #8D85C4;
+    --ton-still: #6F67A6;
+    --ton-tief: #5E5794;
+    --laeuft: #9BE24A;
+    --laeuft-rgb: 155, 226, 74;
+    --fuehrung: #9BE24A;
+  }
   /* ---------- Untere Ligen · Vereinsblau ----------
      Vier Spieler, zwei Durchgänge (CC2-Modus 27). Dieselben Werte wie
      public/design.css [data-design="unterliga"] im Overlay. */
@@ -250,6 +277,252 @@
         transparent 2px, transparent 110px),
       linear-gradient(160deg, var(--grund-hoch) 0%, var(--grund-mitte) 62%, var(--grund-tief) 100%);
   }
+
+  /* ================================================================
+     Champions League: Sternenhimmel, Kante oben
+     ================================================================ */
+  #sterne { display: none; }
+  :root[data-design="championsleague"] #stage {
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 16%, rgba(42, 31, 107, .95), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 8% 100%, rgba(18, 184, 240, .16), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 92% 100%, rgba(155, 226, 74, .10), transparent 70%),
+      linear-gradient(180deg, #150E3A 0%, #0E0928 60%, #0B0722 100%);
+  }
+  :root[data-design="championsleague"] #stage::before,
+  :root[data-design="pokal"] #stage::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 6px;
+    z-index: 2;
+    background: linear-gradient(90deg, #12B8F0, #57D08C 50%, #9BE24A);
+  }
+  :root[data-design="championsleague"] #sterne {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .stern {
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    opacity: .12;
+    animation: funkeln 3.2s ease-in-out infinite;
+  }
+  .stern--gross { width: 3px; height: 3px; box-shadow: 0 0 6px rgba(255, 255, 255, .8); }
+  @keyframes funkeln { 50% { opacity: .9; } }
+  /* Sternschnuppe: alle 22 s einmal quer durch den Himmel */
+  .schnuppe {
+    position: absolute;
+    left: 62%; top: 7%;
+    width: 220px; height: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), #FFFFFF);
+    border-radius: 2px;
+    opacity: 0;
+    transform: rotate(-24deg);
+    animation: schnuppe 22s linear infinite 6s;
+  }
+  @keyframes schnuppe {
+    0%   { opacity: 0; transform: translate(0, 0) rotate(-24deg); }
+    1%   { opacity: 1; }
+    5%   { opacity: 0; transform: translate(-520px, 230px) rotate(-24deg); }
+    100% { opacity: 0; transform: translate(-520px, 230px) rotate(-24deg); }
+  }
+
+  /* Raute statt Doppelpunkt – gross bei den Mannschaftspunkten, klein in
+     den Duellen. Sie pulsiert wie oben links im Stream. */
+  :root[data-design="championsleague"] #mp .doppel {
+    display: inline-block;
+    width: 36px; height: 36px;
+    margin: 0 46px;
+    font-size: 0;
+    vertical-align: middle;
+    transform: translateY(-8px) rotate(45deg);
+    background: linear-gradient(120deg, #12B8F0, #9BE24A);
+    box-shadow: 0 0 26px 4px rgba(18, 184, 240, .7);
+    animation: raute-puls 2.4s ease-in-out infinite;
+  }
+  @keyframes raute-puls { 50% { box-shadow: 0 0 40px 10px rgba(155, 226, 74, .55); } }
+  /* Trenner der Satzpunkte: aufrecht (ein <i> stünde sonst kursiv und der
+     Doppelpunkt sähe verschoben aus) */
+  .du__spt { display: inline; font-style: normal; }
+  :root[data-design="championsleague"] .du__spt {
+    display: inline-block;
+    width: 11px; height: 11px;
+    margin: 0 12px;
+    font-size: 0;
+    vertical-align: middle;
+    transform: translateY(-3px) rotate(45deg);
+    background: linear-gradient(120deg, #12B8F0, #9BE24A);
+  }
+  :root[data-design="championsleague"] .du__sp--live .du__spt { background: #0B0722; }
+  :root[data-design="championsleague"] .du__sp--live { background: linear-gradient(90deg, #12B8F0, #9BE24A); color: #0B0722; }
+  :root[data-design="championsleague"] .team__holz.vorn,
+  :root[data-design="championsleague"] .du__holz.gold,
+  :root[data-design="championsleague"] .st__wert.gold { color: var(--fuehrung); }
+  :root[data-design="championsleague"] .team__diff { color: var(--fuehrung); box-shadow: inset 0 0 0 3px var(--fuehrung); }
+  :root[data-design="championsleague"] .mitte__label { color: #9BE24A; }
+  :root[data-design="championsleague"] #mp { text-shadow: 0 0 40px rgba(18, 184, 240, .35); }
+
+  /* ================================================================
+     DKBC-Pokal: Schwarz/Gold – Kante in Schwarz-Rot-Gold, goldener
+     Schein von oben, Doppelpunkt als zwei Goldpunkte, darunter der
+     Erfolgsbalken zu 4,5 Punkten (wie die Leiste im Stream)
+     ================================================================ */
+  :root[data-design="pokal"] #stage {
+    background:
+      radial-gradient(ellipse 55% 40% at 50% 0%, rgba(232, 178, 26, .22), transparent 70%),
+      repeating-linear-gradient(115deg,
+        rgba(255, 255, 255, .02) 0px, rgba(255, 255, 255, .02) 2px,
+        transparent 2px, transparent 110px),
+      linear-gradient(180deg, #161616 0%, #0C0C0C 60%, #060606 100%);
+  }
+  :root[data-design="pokal"] #stage::before {
+    height: 8px;
+    background: linear-gradient(90deg, #111111 0 33.3%, #E2001A 33.3% 66.6%, #F5C400 66.6% 100%);
+  }
+  :root[data-design="pokal"] #mp .doppel {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 26px;
+    margin: 0 40px;
+    font-size: 0;
+    vertical-align: middle;
+    transform: translateY(-6px);
+  }
+  :root[data-design="pokal"] #mp .doppel::before,
+  :root[data-design="pokal"] #mp .doppel::after {
+    content: "";
+    width: 18px; height: 18px;
+    background: #E8B21A;
+    box-shadow: 0 0 14px rgba(232, 178, 26, .6);
+  }
+  :root[data-design="pokal"] #liga {
+    color: #F2C94C;
+    box-shadow: inset 0 0 0 2px rgba(232, 178, 26, .7);
+  }
+  /* Erfolgsbalken: Im Pokal wird der Farbstrich unter dem Namen zum Weg
+     bis 4,5 Punkte (ganzer Balken = 8 Punkte, Goldmarke bei 4,5). Ist die
+     Mannschaft weiter, leuchtet er gold. Der Gast füllt sich von rechts. */
+  :root[data-design="pokal"] .team__balken {
+    position: relative;
+    width: 380px; height: 12px;
+    background: rgba(255, 255, 255, .1);
+  }
+  :root[data-design="pokal"] .team__balken::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: var(--weg, 0%);
+    transition: width .9s cubic-bezier(.2, .9, .25, 1);
+  }
+  :root[data-design="pokal"] .team--heim .team__balken::before { left: 0; background: linear-gradient(90deg, var(--heim-dunkel), var(--heim)); }
+  :root[data-design="pokal"] .team--gast .team__balken::before { right: 0; background: linear-gradient(270deg, var(--gast-dunkel), var(--gast)); }
+  :root[data-design="pokal"] .team__balken.weiter::before { background: linear-gradient(90deg, #E8B21A, #F2C94C); box-shadow: 0 0 18px rgba(232, 178, 26, .7); }
+  :root[data-design="pokal"] .team__balken::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    width: 4px; height: 22px;
+    background: #E8B21A;
+  }
+  :root[data-design="pokal"] .team--heim .team__balken::after { left: calc(100% * 4.5 / 8); }
+  :root[data-design="pokal"] .team--gast .team__balken::after { right: calc(100% * 4.5 / 8); }
+
+  /* ================================================================
+     Champions League: Gesamtstand beider Spiele (oben Mitte, live)
+     Im Rückspiel: Punkte und Sätze aus Hin- und Rückspiel zusammen, dazu
+     wer gerade weiter wäre – bzw. wer weiter IST, sobald es rechnerisch
+     nicht mehr kippen kann. Im Hinspiel nur ein ruhiger Hinweis.
+     ================================================================ */
+  #gesamt {
+    position: absolute;
+    left: 50%; top: 30px;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 8px 10px 8px 22px;
+    white-space: nowrap;
+    background: rgba(18, 12, 52, .86);
+    box-shadow: inset 0 0 0 1px rgba(18, 184, 240, .45), 0 10px 30px rgba(0, 0, 0, .4);
+  }
+  .ge__titel { font-weight: 700; font-size: 18px; letter-spacing: .2em; color: #7FD9F5; }
+  .ge__zahl {
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 40px; line-height: 1;
+    color: #FFFFFF;
+  }
+  .ge__zahl:empty, .ge__satz:empty { display: none; }
+  .ge__raute {
+    width: 11px; height: 11px;
+    transform: rotate(45deg);
+    background: linear-gradient(120deg, #12B8F0, #9BE24A);
+  }
+  .ge__satz { font-weight: 600; font-size: 22px; letter-spacing: .06em; color: var(--ton-mittel); }
+  .ge__lage {
+    font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 24px; letter-spacing: .08em;
+    padding: 6px 16px;
+    color: #9BE24A;
+    background: rgba(155, 226, 74, .14);
+  }
+  /* Steht fest: grün-cyan, leuchtet */
+  #gesamt.ge--fest .ge__lage {
+    color: #0B0722;
+    background: linear-gradient(90deg, #12B8F0, #9BE24A);
+    animation: ge-glanz 2.4s ease-in-out infinite;
+  }
+  @keyframes ge-glanz { 50% { box-shadow: 0 0 26px 4px rgba(155, 226, 74, .6); } }
+  /* Gleichstand / Stechen: Cyan */
+  #gesamt.ge--gleich .ge__lage { color: #7FD9F5; background: rgba(18, 184, 240, .16); }
+  /* Hinspiel: nur ein ruhiger Hinweis */
+  #gesamt.ge--hin .ge__lage { color: var(--ton-mittel); background: transparent; padding-left: 0; }
+
+  /* ================================================================
+     Champions League und Pokal: Satzpunkte gross
+     Dort entscheiden die Satzpunkte mit (Pokal bei 4 : 4, CL über beide
+     Spiele) – sie müssen aus jeder Ecke der Halle lesbar sein. Dafür
+     fällt dort die Zeile "1. DURCHGANG · SATZ 1/4" weg (Nico, Nov. 2026),
+     und die Mannschaftspunkte werden etwas kleiner, damit die Mitte nicht
+     in die Tafel darunter wächst.
+     ================================================================ */
+  :root[data-design="championsleague"] #mp,
+  :root[data-design="pokal"] #mp { font-size: 124px; }
+  :root[data-design="championsleague"] #uz-stand,
+  :root[data-design="pokal"] #uz-stand { display: none !important; }
+  /* "SATZPUNKTE" klein darüber, die Zahlen darunter gross (Nico, Nov.
+     2026) – so bleibt die Mitte schmal, und lange Vereinsnamen links und
+     rechts werden nicht gekürzt */
+  :root[data-design="championsleague"] #uz-sp,
+  :root[data-design="pokal"] #uz-sp {
+    margin-top: 6px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 78px;
+    line-height: .95;
+    letter-spacing: .02em;
+  }
+  :root[data-design="pokal"] #uz-sp { color: #F2C94C; }
+  .uz-sp__lbl { margin-right: .3em; }
+  :root[data-design="championsleague"] .uz-sp__lbl,
+  :root[data-design="pokal"] .uz-sp__lbl {
+    display: block;
+    margin: 0 0 4px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: .16em;
+    color: var(--ton-mittel);
+  }
+  :root[data-design="championsleague"] .uz-sp__lbl { color: #9BE24A; }
+  :root[data-design="championsleague"] .du__sp,
+  :root[data-design="pokal"] .du__sp { width: 156px; font-size: 40px; padding: 4px 0; }
+  :root[data-design="championsleague"] .ge__satz { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 32px; color: #FFFFFF; }
 
   /* ================================================================
      Oberste Zeile: Liga links, Uhr + Status rechts
@@ -710,6 +983,8 @@
 </head>
 <body>
 <div id="stage">
+  <!-- Champions League: Sternenhimmel (sonst unsichtbar) -->
+  <div id="sterne"><i class="schnuppe"></i></div>
   <header id="kopf">
     <div id="liga"></div>
     <div id="kopf-rechts">
@@ -717,6 +992,14 @@
       <div id="uhr">--:--</div>
     </div>
   </header>
+
+  <!-- Champions League: Gesamtstand beider Spiele (gesamtRendern) -->
+  <div id="gesamt" hidden>
+    <span class="ge__titel" id="ge-titel"></span>
+    <span class="ge__zahl" id="ge-mp"></span>
+    <span class="ge__satz" id="ge-satz"></span>
+    <span class="ge__lage" id="ge-lage"></span>
+  </div>
 
   <div id="score">
     <div class="team team--heim">
@@ -936,7 +1219,11 @@ function holeOverlayFarben() {
         wettbewerb: einerVon(WETTBEWERBE, d.wettbewerb),
         variante: einerVon(VARIANTEN, d.variante),
         runde: String((d.pokal || {}).runde || ''),
-        weiterIn: String((d.pokal || {}).weiterIn || '')
+        weiterIn: String((d.pokal || {}).weiterIn || ''),
+        // Champions League: Hin-/Rückspiel und das Hinspiel-Ergebnis (aus
+        // Sicht der heutigen Heimmannschaft des Overlays, heimName)
+        heimName: String(d.heimName || ''),
+        cl: d.cl && typeof d.cl === 'object' ? d.cl : null
       };
       farbenAnwenden();
       if (S) { designAnwenden(S); renderKopf(S); renderTafeln(); }
@@ -953,14 +1240,17 @@ setInterval(holeOverlayFarben, 15000);
 
 /* ------------------------------------------------ Wettbewerb (Farbweg)
  *
- * Bundesliga oder Pauly DKBC Pokal? Bestimmt wird das in derselben
- * Reihenfolge wie die Teamfarben:
+ * Bundesliga, Pauly DKBC Pokal, Champions League oder untere Ligen?
+ * Bestimmt wird das in derselben Reihenfolge wie die Teamfarben:
  *
- *   ?wettbewerb=pokal|bundesliga  von Hand festgelegt (schlägt alles)
+ *   ?wettbewerb=pokal|bundesliga|championsleague|unterliga
+ *                                 von Hand festgelegt (schlägt alles)
  *   ?overlay=<IP>:4750            was die Regie am Stream-PC eingestellt
- *                                 hat – samt Runde ("VIERTELFINALE")
- *   Spielstand                    "Pokal" in Spielklasse, Bezeichnung
- *                                 oder Altersklasse des Wettkampfs
+ *                                 hat – samt Runde ("VIERTELFINALE") und
+ *                                 in der Champions League dem Hinspiel
+ *   Spielstand                    "Champions" bzw. "Pokal" in Spielklasse,
+ *                                 Bezeichnung oder Altersklasse; vier
+ *                                 Spieler = untere Ligen
  *   sonst                         Bundesliga
  *
  * Die Erkennung am Spielstand ist absichtlich weit gefasst: Den Namen des
@@ -973,7 +1263,7 @@ setInterval(holeOverlayFarben, 15000);
  * wissen – die kommt vom Stream-PC oder per ?variante=.
  */
 
-const WETTBEWERBE = ['bundesliga', 'pokal', 'unterliga'];
+const WETTBEWERBE = ['bundesliga', 'pokal', 'unterliga', 'championsleague'];
 const VARIANTEN = ['navy', 'graphit'];
 
 function einerVon(liste, wert) {
@@ -984,7 +1274,7 @@ function einerVon(liste, wert) {
 const WB_FEST = einerVon(WETTBEWERBE, P.get('wettbewerb'));
 const VARIANTE_FEST = einerVon(VARIANTEN, P.get('variante'));
 
-let vomOverlayWb = { wettbewerb: '', variante: '', runde: '', weiterIn: '' };
+let vomOverlayWb = { wettbewerb: '', variante: '', runde: '', weiterIn: '', heimName: '', cl: null };
 let wbJetzt = { wettbewerb: '', variante: '' };
 
 /** Steht im Wettkampf-Namen etwas von Pokal? */
@@ -993,6 +1283,14 @@ function pokalErkannt(s) {
   const text = [wk.liga, wk.bezeichnung, wk.altersklasse]
     .map((t) => String(t || '')).join(' ').toLowerCase();
   return /pokal|cup/.test(text);
+}
+
+/** Steht im Wettkampf-Namen etwas von Champions League? */
+function clErkannt(s) {
+  const wk = (s && s.wettkampf) || {};
+  const text = [wk.liga, wk.bezeichnung, wk.altersklasse]
+    .map((t) => String(t || '')).join(' ').toLowerCase();
+  return /champions/.test(text);
 }
 
 /**
@@ -1011,7 +1309,8 @@ function vierSpieler(s) {
 /** Welcher Farbweg gilt für diesen Spielstand? */
 function wettbewerbBestimmen(s) {
   const wettbewerb = WB_FEST || vomOverlayWb.wettbewerb ||
-    (pokalErkannt(s) ? 'pokal' : vierSpieler(s) ? 'unterliga' : 'bundesliga');
+    (clErkannt(s) ? 'championsleague' : pokalErkannt(s) ? 'pokal'
+      : vierSpieler(s) ? 'unterliga' : 'bundesliga');
   const variante = VARIANTE_FEST || vomOverlayWb.variante || 'navy';
   return { wettbewerb, variante };
 }
@@ -1061,8 +1360,11 @@ function setText(el, text) {
  * Gerechnet werden die Mannschaftspunkte in Liga und Pokal GLEICH
  * (6 Duelle + 2 für das bessere Gesamtholz), gewertet werden sie
  * unterschiedlich: Ab 4,5 Punkten ist eine Mannschaft weiter, bei 4:4
- * entscheidet das Gesamtholz, und bei 4:4 mit exakt gleichem Holz gibt es
- * ein Stechen.
+ * entscheiden die Satzpunkte (mehr als 12), und bei 12:12 gibt es ein
+ * Stechen (Sudden Victory) – das Holz zählt NICHT (DKBC SpO Teil C, C 3.5:
+ * "Sudden Victory ist nur beim Spielstand von 4:4 Mannschaftspunkten und
+ * 12:12 Satzpunkten notwendig"). Nur ohne jede Satzangabe hilft das Holz
+ * notbehelfsweise aus. Bis Nov. 2026 stand hier das Holz – das war falsch.
  *
  * Dieselbe Regel steht im Stream-Overlay in einer eigenen, geprüften
  * Datei (public/overlay/scenes/pokal-regeln.js samt tools/pokal.test.js).
@@ -1073,11 +1375,18 @@ function setText(el, text) {
 
 const POKAL_SIEGPUNKTE = 4.5;
 
-function pokalEntscheidung(punkte, holzHeim, holzGast) {
+function pokalEntscheidung(punkte, holzHeim, holzGast, satz) {
   const h = num(punkte && punkte.heim);
   const g = num(punkte && punkte.gast);
+  const sh = num(satz && satz.heim);
+  const sg = num(satz && satz.gast);
   if (h >= POKAL_SIEGPUNKTE) return { sieger: 'heim', stechen: false };
   if (g >= POKAL_SIEGPUNKTE) return { sieger: 'gast', stechen: false };
+  if (sh + sg > 0) {
+    if (sh > sg) return { sieger: 'heim', stechen: false };
+    if (sg > sh) return { sieger: 'gast', stechen: false };
+    return { sieger: null, stechen: true };
+  }
   if (num(holzHeim) > num(holzGast)) return { sieger: 'heim', stechen: false };
   if (num(holzGast) > num(holzHeim)) return { sieger: 'gast', stechen: false };
   return { sieger: null, stechen: true };
@@ -1087,6 +1396,28 @@ function pokalEntscheidung(punkte, holzHeim, holzGast) {
 function istPokal() {
   return wbJetzt.wettbewerb === 'pokal';
 }
+
+function istCl() {
+  return wbJetzt.wettbewerb === 'championsleague';
+}
+
+/**
+ * Sternenhimmel der Champions League: einmal gebaut, feste Pseudo-Zufalls-
+ * folge – bei jedem Start dieselben Sterne, nichts springt.
+ */
+(function sterneBauen() {
+  const feld = document.getElementById('sterne');
+  let x = 7;
+  const zufall = () => { x = (x * 9301 + 49297) % 233280; return x / 233280; };
+  for (let i = 0; i < 170; i++) {
+    const st = document.createElement('i');
+    st.className = 'stern' + (zufall() < 0.14 ? ' stern--gross' : '');
+    st.style.left = (zufall() * 100).toFixed(2) + '%';
+    st.style.top = (zufall() * 100).toFixed(2) + '%';
+    st.style.animationDelay = (zufall() * 3.2).toFixed(1) + 's';
+    feld.appendChild(st);
+  }
+})();
 
 /**
  * Die Zeile unter der Duell-Tafel. In der Liga sagt sie, wie die
@@ -1101,9 +1432,19 @@ function fussZeile(s) {
   const regel = basis + ' · ab 4,5 Punkten weiter';
   if (!s.matchFertig) return { text: regel, sieger: false };
   const e = pokalEntscheidung(mannschaftspunkte(s),
-    (teams[0] || {}).gesamt, (teams[1] || {}).gesamt);
+    (teams[0] || {}).gesamt, (teams[1] || {}).gesamt,
+    { heim: (teams[0] || {}).satzpunkte, gast: (teams[1] || {}).satzpunkte });
   if (e.stechen) {
-    return { text: 'Punkte und Gesamtholz gleich – das Stechen entscheidet', sieger: true };
+    // Hat die Regie den Sieger des Stechens im Overlay eingetragen, gilt der
+    const cl = vomOverlayWb.cl || {};
+    if (cl.sudden === 'home' || cl.sudden === 'away') {
+      const gedreht = gleicherVerein(vomOverlayWb.heimName, (teams[1] || {}).name) &&
+        !gleicherVerein(vomOverlayWb.heimName, (teams[0] || {}).name);
+      e.sieger = ((cl.sudden === 'home') !== gedreht) ? 'heim' : 'gast';
+      e.stechen = false;
+    } else {
+      return { text: '4 : 4 und 12 : 12 Satzpunkte – das Sudden Victory entscheidet', sieger: true };
+    }
   }
   const name = String((teams[e.sieger === 'heim' ? 0 : 1] || {}).name || '').trim();
   if (!name) return { text: regel, sieger: false };
@@ -1312,8 +1653,10 @@ function renderDuelle(s) {
     const dg = Math.ceil(num(d.pos) / 2) || 1;
     let sp;
     let spKl = 'du__sp';
-    if (fertig) sp = fmtSp(spH) + ' : ' + fmtSp(spG);
-    else if (begonnen) { sp = fmtSp(spH) + ' : ' + fmtSp(spG); spKl += ' du__sp--live'; }
+    // Trenner als eigenes Element: In der Champions League wird er zur Raute
+    const trenner = '<i class="du__spt"> : </i>';
+    if (fertig) sp = fmtSp(spH) + trenner + fmtSp(spG);
+    else if (begonnen) { sp = fmtSp(spH) + trenner + fmtSp(spG); spKl += ' du__sp--live'; }
     else sp = dg + '. DG';
 
     const zeileKl = 'du__zeile' + (begonnen ? '' : ' du__zeile--kommend');
@@ -1430,6 +1773,126 @@ function diffSetzen(el, wert, zeigen) {
   if (!el.hidden) setText(el, '+' + n);
 }
 
+/* ------------------------------------------- Champions League: Gesamt */
+
+/** Kurzname für die Zeile oben: der Ortsname ("RAINDORF", "BAMBERG"). */
+function kurzName(name) {
+  const worte = String(name || '').trim().split(/\s+/)
+    .filter((w) => !/^(I{1,3}|IV|V|\d+\.?)$/i.test(w));
+  return (worte[worte.length - 1] || '').toUpperCase();
+}
+
+/** Derselbe Verein? (gross/klein, Leer- und Sonderzeichen egal) */
+function gleicherVerein(a, b) {
+  const n = (x) => String(x || '').toLowerCase().replace(/[^a-z0-9äöüß]/g, '');
+  return Boolean(n(a)) && n(a) === n(b);
+}
+
+/**
+ * Gesamtstand beider Spiele (NBC, Ziffer 14 a): mehr Mannschaftspunkte aus
+ * Hin- und Rückspiel, bei Gleichstand mehr Satzpunkte, sonst Sudden
+ * Victory. Das Holz zählt nicht.
+ *
+ * "Steht fest" schon vor dem letzten Wurf, wenn eine Seite mit den
+ * SICHEREN Punkten (Hinspiel + fertige Duelle) weiter vorn liegt, als
+ * heute noch zu vergeben ist (offene Duelle je 1 + 2 fürs Gesamtholz).
+ * Bewusst nur nach Punkten – über die Sätze kann es bis zuletzt kippen.
+ */
+function clGesamt(s) {
+  const cl = vomOverlayWb.cl || {};
+  const teams = s.teams || [];
+  const hs = cl.hinspiel || {};
+  // Das Hinspiel steht aus Sicht der Heimmannschaft im Overlay. Ist die
+  // in CC2 heute als Gast eingetragen, wird gedreht.
+  const gedreht = gleicherVerein(vomOverlayWb.heimName, teams[1] && teams[1].name) &&
+    !gleicherVerein(vomOverlayWb.heimName, teams[0] && teams[0].name);
+  const hin = gedreht
+    ? { mpH: num(hs.punkteGast), mpG: num(hs.punkteHeim), sH: num(hs.satzGast), sG: num(hs.satzHeim) }
+    : { mpH: num(hs.punkteHeim), mpG: num(hs.punkteGast), sH: num(hs.satzHeim), sG: num(hs.satzGast) };
+
+  const mp = mannschaftspunkte(s);
+  const ges = { h: mp.heim + hin.mpH, g: mp.gast + hin.mpG };
+  const satz = {
+    h: num(teams[0] && teams[0].satzpunkte) + hin.sH,
+    g: num(teams[1] && teams[1].satzpunkte) + hin.sG
+  };
+  let sieger = ges.h > ges.g ? 'heim' : ges.g > ges.h ? 'gast'
+    : satz.h > satz.g ? 'heim' : satz.g > satz.h ? 'gast' : '';
+
+  let fest = Boolean(s.matchFertig);
+  if (!fest) {
+    const sjd = saetzeJeDurchgang(s);
+    const anzDuelle = Math.max((s.duelle || []).length,
+      Math.round(num((s.wettkampf || {}).anzDurchgaenge) / sjd) * 2);
+    let sicherH = hin.mpH;
+    let sicherG = hin.mpG;
+    let offen = anzDuelle + 2; // + 2 für das Gesamtholz
+    for (const d of s.duelle || []) {
+      const spH = num(d.satzpunkteHeim);
+      const spG = num(d.satzpunkteGast);
+      if (spH + spG < sjd) continue; // noch nicht fertig
+      offen -= 1;
+      if (spH > spG) sicherH += 1;
+      else if (spG > spH) sicherG += 1;
+      else if (num(d.holzHeim) > num(d.holzGast)) sicherH += 1;
+      else if (num(d.holzGast) > num(d.holzHeim)) sicherG += 1;
+      else { sicherH += 0.5; sicherG += 0.5; }
+    }
+    if (sicherH - sicherG > offen) { fest = true; sieger = 'heim'; }
+    else if (sicherG - sicherH > offen) { fest = true; sieger = 'gast'; }
+  }
+
+  // Unentschieden nach dem letzten Wurf: Hat die Regie den Sieger des
+  // Sudden Victory eingetragen (Overlay-Panel), gilt der.
+  let sudden = false;
+  if (s.matchFertig && !sieger && (cl.sudden === 'home' || cl.sudden === 'away')) {
+    const overlayHeim = cl.sudden === 'home';
+    sieger = (overlayHeim !== gedreht) ? 'heim' : 'gast';
+    sudden = true;
+  }
+  return { ges, satz, sieger, fest, sudden };
+}
+
+function gesamtRendern(s) {
+  const el = $('gesamt');
+  const cl = vomOverlayWb.cl;
+  if (!istCl() || !cl) { el.hidden = true; return; }
+  el.hidden = false;
+  if (cl.spiel !== 'rueck') {
+    el.className = 'ge--hin';
+    setText($('ge-titel'), 'HINSPIEL');
+    $('ge-mp').innerHTML = '';
+    setText($('ge-satz'), '');
+    setText($('ge-lage'), 'DIE ENTSCHEIDUNG FÄLLT IM RÜCKSPIEL');
+    return;
+  }
+  const teams = s.teams || [];
+  const g = clGesamt(s);
+  setText($('ge-titel'), 'GESAMT');
+  const mpHtml = fmtSp(g.ges.h) + '<i class="ge__raute"></i>' + fmtSp(g.ges.g);
+  if ($('ge-mp').innerHTML !== mpHtml) $('ge-mp').innerHTML = mpHtml;
+  setText($('ge-satz'), 'SÄTZE ' + fmtSp(g.satz.h) + ' : ' + fmtSp(g.satz.g));
+  const name = g.sieger ? kurzName((teams[g.sieger === 'heim' ? 0 : 1] || {}).name) : '';
+  const ziel = String(vomOverlayWb.weiterIn || '').trim().toUpperCase();
+  let text;
+  let kl;
+  if (g.fest && g.sieger) {
+    text = name + ' IST WEITER' + (ziel ? ' · ' + ziel : '') + (g.sudden ? ' · NACH SUDDEN VICTORY' : '');
+    kl = 'ge--fest';
+  } else if (g.fest) {
+    text = 'SUDDEN VICTORY · ENTSCHEIDUNG IM STECHEN';
+    kl = 'ge--gleich';
+  } else if (g.sieger) {
+    text = 'STAND JETZT: ' + name + ' WÄRE WEITER';
+    kl = 'ge--live';
+  } else {
+    text = 'STAND JETZT: GLEICHSTAND';
+    kl = 'ge--gleich';
+  }
+  el.className = kl;
+  setText($('ge-lage'), text);
+}
+
 /* ---------------------------------------------------------- Kopf */
 
 function renderKopf(s) {
@@ -1459,8 +1922,11 @@ function renderKopf(s) {
   const sjd = saetzeJeDurchgang(s);
   const uzSp = $('uz-sp');
   uzSp.hidden = num(s.wurfAnzahl) === 0;
-  setText(uzSp, 'SATZPUNKTE ' + fmtSp(teams[0] && teams[0].satzpunkte) +
-    ' : ' + fmtSp(teams[1] && teams[1].satzpunkte));
+  // Wort und Zahlen getrennt: In Champions League und Pokal steht das Wort
+  // klein darüber und die Zahlen gross darunter (in der Liga wie bisher)
+  const uzHtml = '<span class="uz-sp__lbl">SATZPUNKTE</span>' +
+    fmtSp(teams[0] && teams[0].satzpunkte) + ' : ' + fmtSp(teams[1] && teams[1].satzpunkte);
+  if (uzSp.innerHTML !== uzHtml) uzSp.innerHTML = uzHtml;
 
   let stand = '';
   if (s.matchFertig) {
@@ -1485,13 +1951,27 @@ function renderKopf(s) {
   // Das Zeichen des Wettbewerbs gehört zum Pokal; in der Liga steht dort
   // nichts (das Vereinslogo hat in der Halle keinen Platz und wäre auf
   // jedem Bildschirm dasselbe).
-  $('wb-logo').hidden = !istPokal();
+  // Pokal und Champions League zeigen ihr Zeichen (auf dunklem Grund die
+  // helle Fassung des Pokal-Logos)
+  $('wb-logo').hidden = !istPokal() && !istCl();
+  const logo = istCl() ? 'champions-league-marke.png' : 'dkbc-pokal-hell.png';
+  const logoImg = $('wb-logo').querySelector('img');
+  if (logoImg.getAttribute('src') !== logo) logoImg.setAttribute('src', logo);
 
-  const liga = (istPokal()
+  // Pokal: Erfolgsbalken unter den Namen – Anteil an 8 Punkten, ab 4,5 gold
+  for (const [seite, punkte] of [['heim', mp.heim], ['gast', mp.gast]]) {
+    const balken = document.querySelector('.team--' + seite + ' .team__balken');
+    balken.style.setProperty('--weg', (Math.max(0, Math.min(1, num(punkte) / 8)) * 100) + '%');
+    balken.classList.toggle('weiter', istPokal() && num(punkte) >= 4.5);
+  }
+
+  const liga = ((istPokal() || istCl())
     ? (pokalRunde() || String(wk.liga || ''))
     : [wk.liga, wk.spieltag ? wk.spieltag + '. SPIELTAG' : '']
       .filter(Boolean).join(' · ')).toUpperCase();
   setText($('liga'), liga || String(wk.bezeichnung || ''));
+
+  gesamtRendern(s);
 
   const info = [wk.bezeichnung, wk.ort].filter(Boolean).join(' · ');
   setText($('wk-info'), info + (s.demo ? ' · Aufzeichnung' : ''));
